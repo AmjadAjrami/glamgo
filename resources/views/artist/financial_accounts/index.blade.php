@@ -193,7 +193,7 @@
                                 </div>
                                 <div class="my-auto">
                                     <h4 class="fw-bolder mb-0">{{ $details['app_percentage_from_cash'] }} @lang('common.rq')</h4>
-                                    <p class="card-text font-small-3 mb-0">@lang('common.app_cash_percentage')</p>
+                                    <p class="card-text font-small-3 mb-0">@lang('common.total_app_cash_percentage')</p>
                                 </div>
                             </div>
                         </div>
