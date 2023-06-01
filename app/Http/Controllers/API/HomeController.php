@@ -585,7 +585,7 @@ class HomeController extends Controller
         if ($request->category_id || $request->category_id != 0) {
             $products = $products->where('category_id', $request->category_id);
         }
-        $products = $products->get()->makeHidden(['images']);
+        $products = $products->orderByDesc('created_at')->get()->makeHidden(['images']);
 
 //        $items = $products->getCollection();
 //        $items->map(function ($item){
@@ -626,7 +626,7 @@ class HomeController extends Controller
             $ids = ProductTranslation::query()->where('title', 'like', '%' . $request->title . '%')->pluck('product_id');
             $products = $products->whereIn('id', $ids);
         }
-        $products = $products->get()->makeHidden(['images']);
+        $products = $products->orderByDesc('created_at')->get()->makeHidden(['images']);
 
         return mainResponse(true, __('ok'), $products, [], 200);
     }
@@ -649,7 +649,7 @@ class HomeController extends Controller
         if ($request->category_id || $request->category_id != 0) {
             $products = $products->where('category_id', $request->category_id);
         }
-        $products = $products->get()->makeHidden(['images']);
+        $products = $products->orderByDesc('created_at')->get()->makeHidden(['images']);
 
         return mainResponse(true, __('ok'), $products, [], 200);
     }
