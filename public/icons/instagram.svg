@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="37" height="37" viewBox="0 0 37 37">
+  <defs>
+    <radialGradient id="radial-gradient" cx="-0.109" cy="1.35" r="2.085" gradientTransform="translate(0)" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#f9ed41"/>
+      <stop offset="0.241" stop-color="#ff833d"/>
+      <stop offset="0.401" stop-color="#ee5468"/>
+      <stop offset="0.489" stop-color="#e7407b"/>
+      <stop offset="1" stop-color="#0028ff"/>
+    </radialGradient>
+  </defs>
+  <g id="Icons" transform="translate(-314 -737.476)">
+    <g id="Group_4334" data-name="Group 4334" transform="translate(-48.565 -682.438)">
+      <rect id="Rectangle_270" data-name="Rectangle 270" width="37" height="37" rx="18.5" transform="translate(362.565 1419.914)" fill="url(#radial-gradient)"/>
+      <g id="Group_3" data-name="Group 3" transform="translate(250.729 1124.415)">
+        <path id="Path_4" data-name="Path 4" d="M134.78,325.477h-8.908a7.043,7.043,0,0,1-7.035-7.035v-8.908a7.043,7.043,0,0,1,7.035-7.035h8.908a7.043,7.043,0,0,1,7.035,7.035v8.908A7.043,7.043,0,0,1,134.78,325.477Zm-8.908-21.257a5.321,5.321,0,0,0-5.314,5.315v8.908a5.32,5.32,0,0,0,5.314,5.314h8.908a5.32,5.32,0,0,0,5.314-5.314v-8.908a5.321,5.321,0,0,0-5.314-5.315Z" transform="translate(0)" fill="#fff"/>
+        <path id="Path_5" data-name="Path 5" d="M143.679,333.153a5.812,5.812,0,1,1,5.812-5.812A5.819,5.819,0,0,1,143.679,333.153Zm0-9.863a4.051,4.051,0,1,0,4.051,4.051A4.055,4.055,0,0,0,143.679,323.29Z" transform="translate(-13.353 -13.353)" fill="#fff"/>
+        <path id="Path_6" data-name="Path 6" d="M176.91,315.848a1.513,1.513,0,1,1-1.513-1.513A1.513,1.513,0,0,1,176.91,315.848Z" transform="translate(-38.626 -8.305)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>
