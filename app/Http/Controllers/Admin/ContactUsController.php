@@ -139,7 +139,7 @@ class  ContactUsController extends Controller
         Mail::send('mail', ['content' => $request->message, 'lang' => $lang], function ($message) use ($contact, $lang){
             $subject = $lang == 'ar' ? 'رد على طلب المساعدة' : 'Contact Request Reply';
             $message->to($contact->email, $contact->name)->subject($subject);
-            $message->from('info@qlamsa.com', 'Lamsa');
+            $message->from('info@glamgoapp.com', 'GLamgoapp');
         });
 
         $contact->update(['reply_message' => $request->message]);
