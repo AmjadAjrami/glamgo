@@ -71,7 +71,7 @@ class Product extends Model
 
     public function getOwnerNameAttribute()
     {
-        return $this->salon_id == null ? 'Lamsa - لمسة' : $this->salon->name;
+        return $this->salon_id == null ? 'Glamgo - جلامجو' : $this->salon->name;
     }
 
     public function getOwnerImageAttribute()

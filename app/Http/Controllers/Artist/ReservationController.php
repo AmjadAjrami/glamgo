@@ -139,8 +139,8 @@ class ReservationController extends Controller
             $notification_message_ar = 'تم تأكيد حجزك من قبل ' . $provider->translate('ar')->name . ' يمكنك زيارتها في موعد حجزك ';
             $notification_message_en = 'Your reservation has been confirmed by ' . $provider->translate('en')->name . ' that you can visit at the time of your reservation';
         }elseif ($request->status == 3){
-            $notification_message_ar = 'اصبح طلبك مكتمل الآن ، شكرا لك لاستخدام تطبيق لمسة';
-            $notification_message_en = 'Your order is now complete, thank you for using my LamsaApp';
+            $notification_message_ar = 'اصبح طلبك مكتمل الآن ، شكرا لك لاستخدام تطبيق جلامجو';
+            $notification_message_en = 'Your order is now complete, thank you for using my Glamgo';
         }elseif ($request->status == 5){
             $notification_message_ar = 'لقد تم رفض حجزك من قبل '  . $provider->translate('ar')->name .  ' انقر للاطلاع على سبب الرفض ';
             $notification_message_en = 'Your reservation has been rejected by ' . $provider->translate('en')->name . ' Click to see the reason for rejection';

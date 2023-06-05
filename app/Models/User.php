@@ -42,6 +42,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'country_id' => 'integer',
+        'city_id' => 'integer',
     ];
 
     public function getAddTimeAttribute()

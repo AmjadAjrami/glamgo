@@ -16,7 +16,7 @@ return [
     'profile' => 'الملف الشخصي',
     'logout' => 'تسجيل خروج',
     'login' => 'تسجيل الدخول',
-    'project_title' => 'Lamsa - لمسة',
+    'project_title' => 'GlamGo - جلامجو',
     'welcome' => 'مرحبا بك في',
     'intro' => 'مقدمة التطبيق',
     'title' => 'العنوان',

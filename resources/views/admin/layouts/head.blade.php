@@ -180,7 +180,7 @@
         }
         #logo{
             width: 40px;
-            margin-top: -11px;
+            margin-top: -20px;
             margin-right: 30px;
         }
         .main-menu.menu-light .navigation > li.active > a {

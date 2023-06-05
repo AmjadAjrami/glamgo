@@ -16,7 +16,7 @@ return [
     'profile' => 'Profile',
     'logout' => 'Logout',
     'login' => 'Login',
-    'project_title' => 'Lamsa - لمسة',
+    'project_title' => 'GlamGo - جلامجو',
     'welcome' => 'Welcome to',
     'intro' => 'Intro',
     'title' => 'Title',

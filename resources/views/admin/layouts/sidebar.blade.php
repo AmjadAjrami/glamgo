@@ -395,7 +395,7 @@
                     </a>
                 </li>
             @endif
-            @if(auth('admin')->user()->hasAnyPermission(['show_reservation']))
+            @if(auth('admin')->user()->hasAnyPermission(['reservation']))
                 <li class=" nav-item {{ strtok(\Illuminate\Support\Facades\Route::currentRouteName(),'.') == 'reservations' ? 'active' : '' }}">
                     <a class="d-flex align-items-center" href="{{ route('reservations.index') }}">
                         <svg xmlns="http://www.w3.org/2000/svg" version="1.1"

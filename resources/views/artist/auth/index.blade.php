@@ -70,8 +70,8 @@
     @endif
     <style>
         #login_logo{
-            width: 225px;
-            margin-right: 110px;
+            width: 300px;
+            margin-right: 25px;
         }
         .btn-primary {
             border-color: #D46676 !important;
@@ -125,7 +125,7 @@
                     <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
                         <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
                             <img src="{{ asset('logo.png') }}" id="login_logo">
-                            <h2 class="card-title fw-bold mb-1" style="margin-top: 115px !important;;">@lang('common.welcome') @lang('common.project_title')! 👋</h2>
+                            <h2 class="card-title fw-bold mb-1" style="margin-top: 55px !important;;">@lang('common.welcome') @lang('common.project_title')! 👋</h2>
                             @include('flash::message')
                             <form class="auth-login-form mt-2" action="{{ route('artist.login') }}" method="POST">
                                 @csrf
