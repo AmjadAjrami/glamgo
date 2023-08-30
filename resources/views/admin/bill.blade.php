@@ -116,23 +116,45 @@
                             @foreach($order->cart->items as $item)
                                 <tr>
                                     <td>{{ $item->product->title }}</td>
-                                    <td class="text-center">{{ @$item->discount_price != null ? $item->discount_price : $item->price }} @lang('common.rial')</td>
+                                    <td class="text-center">{{ @$item->discount_price != null ? $item->discount_price : $item->price }} @lang('common.rq')</td>
                                     <td class="text-center">{{ @$item->quantity }}</td>
-                                    <td class="text-right">{{ @$item->total_price }} @lang('common.rial')</td>
+                                    <td class="text-right">{{ @$item->total_price }} @lang('common.rq')</td>
                                 </tr>
                             @endforeach
                             <tr>
                                 <td class="no-line"></td>
                                 <td class="no-line"></td>
                                 <td class="no-line text-center"><strong>@lang('common.delivery_price')</strong></td>
-                                <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price - $order->cart->items->sum('item_price') }} @lang('common.rial')</td>
+                                <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price - $order->cart->items->sum('item_price') }} @lang('common.rq')</td>
                             </tr>
-                            <tr>
-                                <td class="no-line"></td>
-                                <td class="no-line"></td>
-                                <td class="no-line text-center"><strong>@lang('common.total')</strong></td>
-                                <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price }} @lang('common.rial')</td>
-                            </tr>
+                            @if($order->total_price_after_code == null)
+                                <tr>
+                                    <td class="no-line"></td>
+                                    <td class="no-line"></td>
+                                    <td class="no-line text-center"><strong>@lang('common.discount_price')</strong></td>
+                                    <td class="no-line text-right" style="font-weight: bold">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="no-line"></td>
+                                    <td class="no-line"></td>
+                                    <td class="no-line text-center"><strong>@lang('common.total')</strong></td>
+                                    <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price }} @lang('common.rq')</td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td class="no-line"></td>
+                                    <td class="no-line"></td>
+                                    <td class="no-line text-center"><strong>@lang('common.discount_price')</strong></td>
+                                    <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price - $order->total_price_after_code }} @lang('common.rq')</td>
+                                </tr>
+                                <tr>
+                                    <td class="no-line"></td>
+                                    <td class="no-line"></td>
+                                    <td class="no-line text-center"><strong>@lang('common.total')</strong></td>
+                                    <td class="no-line text-right" style="font-weight: bold">{{ $order->total_price_after_code }} @lang('common.rq')</td>
+                                </tr>
+                            @endif
+
                             </tbody>
                         </table>
                     </div>

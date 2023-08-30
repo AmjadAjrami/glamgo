@@ -57,8 +57,8 @@ class UsersController extends Controller
             'email' => 'required|email|unique:users,email',
             'mobile' => 'required|unique:users,mobile',
             'password' => 'required',
-            'gender' => 'required|in:1,2',
-            'dob' => 'required',
+            'gender' => 'nullable|in:1,2',
+            'dob' => 'nullable',
             'country_id' => 'required|exists:countries,id',
             'city_id' => 'required|exists:cities,id',
             'image' => 'nullable',
@@ -124,8 +124,8 @@ class UsersController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'mobile' => 'required|unique:users,mobile,' . $id,
             'password' => 'nullable',
-            'gender' => 'required|in:1,2',
-            'dob' => 'required',
+            'gender' => 'nullable|in:1,2',
+            'dob' => 'nullable',
             'country_id' => 'required|exists:countries,id',
             'city_id' => 'required|exists:cities,id',
             'image' => 'nullable',
@@ -495,8 +495,8 @@ class UsersController extends Controller
 
             $title_ar = 'رصيد جديد';
             $title_en = 'New Balance';
-            $message_ar = 'تم إضافة رصيد جديد لمحفظتك من قبل الإدارة';
-            $message_en = 'A new balance has been added to your wallet by the administration';
+            $message_ar = 'تم إضافة رصيد جديد لمحفظتك بقيمة '. $request->balance .' ر.ق من قبل الإدارة';
+            $message_en = 'A new balance of '. $request->balance .' r.q has been added to your wallet by the administration';
         } else {
             if ($request->balance > $user->balance) {
                 flash()->error(__('common.less_balance'));
@@ -507,8 +507,8 @@ class UsersController extends Controller
 
             $title_ar = 'إزالة رصيد';
             $title_en = 'Remove Balance';
-            $message_ar = 'تم إزالة رصيد من محفظتك من قبل الإدارة';
-            $message_en = 'A balance has been removed from your wallet by the administration';
+            $message_ar = 'تم إزالة رصيد من محفظتك بقيمة ' . $request->balance . ' ر.ق من قبل الإدارة';
+            $message_en = 'A balance of '. $request->balance .' r.q has been removed from your wallet by the administration';
         }
 
         $user->update();
@@ -516,8 +516,10 @@ class UsersController extends Controller
         $title = app()->getLocale() == 'ar' ? $title_ar : $title_en;
         $message = app()->getLocale() == 'ar' ? $message_ar : $message_en;
 
+        $image = url('/icons/public.png');
+
         $notification = Notification::query()->create([
-            'image' => '',
+            'image' => $image,
             'type' => 'user_balance',
             'send_date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
             'reference_id' => $user->id,

@@ -56,6 +56,7 @@ class FinancialAccountsController extends Controller
             $total_amount = $orders_price + $reservations_total_amount;
 
             $withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 1)->sum('amount');
+            $cash_withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 2)->where('status', 1)->sum('amount');
 
             $reservations_cash = Reservation::query()->where('salon_id', $salon->id)
                 ->where('payment_method_id', 1)->where('status', 3)->get();
@@ -95,7 +96,7 @@ class FinancialAccountsController extends Controller
                 'app_percentage_store' => $app_percentage_store,
                 'total_amount_after_app_percentage' => $total_amount - $total_app_percentage,
                 'cash_total' => $cash_total,
-                'app_percentage_from_cash' => $app_percentage_cash,
+                'app_percentage_from_cash' => ($app_percentage_cash - $cash_withdraws) <= 0 ? 0 : $app_percentage_cash - $cash_withdraws,
                 'withdrawn_amount' => $withdraws,
                 'remaining_amount' => ($total_amount - $total_app_percentage) - $withdraws,
                 'bank_name' => $salon->bank_name,
@@ -132,6 +133,7 @@ class FinancialAccountsController extends Controller
             $total_amount = $orders_price + $reservations_total_amount;
 
             $withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 1)->where('status', 1)->sum('amount');
+            $cash_withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 2)->where('status', 1)->sum('amount');
 
             $reservations_cash = Reservation::query()->where('salon_id', $salon->id)
                 ->where('payment_method_id', 1)->where('status', 3)->get();
@@ -171,7 +173,7 @@ class FinancialAccountsController extends Controller
                 'app_percentage_store' => $app_percentage_store,
                 'total_amount_after_app_percentage' => $total_amount - $total_app_percentage,
                 'cash_total' => $cash_total,
-                'app_percentage_from_cash' => $app_percentage_cash,
+                'app_percentage_from_cash' => ($app_percentage_cash - $cash_withdraws) <= 0 ? 0 : $app_percentage_cash - $cash_withdraws,
                 'withdrawn_amount' => $withdraws,
                 'remaining_amount' => ($total_amount - $total_app_percentage) - $withdraws,
                 'bank_name' => $salon->bank_name,
@@ -249,7 +251,7 @@ class FinancialAccountsController extends Controller
      */
     public function get_cash_transfers()
     {
-        $transfers = Withdraw::query()->where('type', 2)->get();
+        $transfers = Withdraw::query()->where('type', 2)->orderByDesc('created_at')->get();
         return view('admin.financial_accounts.transfered_cash', compact('transfers'));
     }
 

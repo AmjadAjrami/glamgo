@@ -60,7 +60,7 @@ class SalonController extends Controller
             'lng' => 'required',
             'address_text' => 'required',
             'email' => 'required|unique:salons,email',
-            'mobile' => 'required|unique:salons,mobile',
+            'mobile' => 'nullable|unique:salons,mobile',
             'password' => 'required',
             'video' => 'nullable',
             'thumbnail' => 'required_if:video,!=,null',
@@ -82,7 +82,9 @@ class SalonController extends Controller
         $data['lng'] = $request->lng;
         $data['address_text'] = $request->address_text;
         $data['email'] = $request->email;
-        $data['mobile'] = $request->mobile;
+        if ($request->mobile){
+            $data['mobile'] = $request->mobile;
+        }
         $data['password'] = Hash::make($request->password);
         $data['type'] = $request->type;
         $data['bank_name'] = $request->bank_name;
@@ -204,7 +206,7 @@ class SalonController extends Controller
             'lng' => 'required',
             'address_text' => 'required',
             'email' => 'required|unique:salons,email,' . $id,
-            'mobile' => 'required|unique:salons,mobile,' . $id,
+            'mobile' => 'nullable|unique:salons,mobile,' . $id,
             'password' => 'nullable',
             'video' => 'nullable',
             'thumbnail' => 'required_if:video,!=,null',
@@ -226,13 +228,15 @@ class SalonController extends Controller
         $data['lng'] = $request->lng;
         $data['address_text'] = $request->address_text;
         $data['email'] = $request->email;
-        $data['mobile'] = $request->mobile;
+        if ($request->mobile){
+            $data['mobile'] = $request->mobile;
+        }
         $data['bank_name'] = $request->bank_name;
         $data['bank_account_name'] = $request->bank_account_name;
         $data['iban'] = $request->iban;
         $data['bank_account_number'] = $request->bank_account_number;
 
-        if ($request->passwword) {
+        if ($request->password) {
             $data['password'] = Hash::make($request->password);
         }
 

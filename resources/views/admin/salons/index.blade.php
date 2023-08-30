@@ -287,10 +287,21 @@
                                    for="end_date">{{ __('common.salon_images') }}</label>
                             <div class="input-images_2"></div>
                         </div>
+                        <label class="form-label"
+                               for="address">{{ __('common.address') }}</label>
                         <div class="col-12">
-                            <label class="form-label"
-                                   for="address">{{ __('common.address') }}</label>
-                            <input id="address" name="address_text" class="form-control  mb-2">
+                            <input id="address" name="address_text" class="form-control  mb-2" readonly placeholder="Address">
+                        </div>
+                        <div class="col-5">
+                            <input id="search_address_lat" class="form-control mb-2" placeholder="Lat" name="lat">
+                        </div>
+                        <div class="col-5">
+                            <input id="search_address_lng" class="form-control mb-2" placeholder="Long" name="lng">
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-info" type="button" id="search_location" style=";margin-right: -15px">@lang('common.search')</button>
+                        </div>
+                        <div class="col-12">
                             <div class="map" id="map" style="width: 100%; height: 300px"></div>
                             <div class="form-group">
                                 <div class="col-md-6">
@@ -541,10 +552,21 @@
                                    for="end_date">{{ __('common.salon_images') }}</label>
                             <div class="input-images_4"></div>
                         </div>
+                        <label class="form-label"
+                               for="address">{{ __('common.address') }}</label>
                         <div class="col-12">
-                            <label class="form-label"
-                                   for="address">{{ __('common.address') }}</label>
-                            <input id="edit_address" name="address_text" class="form-control  mb-2">
+                            <input id="edit_address" name="address_text" class="form-control  mb-2" readonly placeholder="Address">
+                        </div>
+                        <div class="col-5">
+                            <input id="edit_search_address_lat" class="form-control mb-2" placeholder="Lat" name="lat">
+                        </div>
+                        <div class="col-5">
+                            <input id="edit_search_address_lng" class="form-control mb-2" placeholder="Long" name="lng">
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-info" type="button" id="edit_search_location" style=";margin-right: -15px">@lang('common.search')</button>
+                        </div>
+                        <div class="col-12">
                             <div class="map" id="edit_map" style="width: 100%; height: 300px"></div>
                             <div class="form-group">
                                 <div class="col-md-6">
@@ -772,22 +794,20 @@
         }
 
         function address_map() {
+            var geocoder = new google.maps.Geocoder;
+            const infowindow = new google.maps.InfoWindow();
             var input = document.getElementById('address');
             var lat = parseFloat(document.getElementById('lat').value);
             var lng = parseFloat(document.getElementById('lng').value);
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            var geocoder = new google.maps.Geocoder;
-            var infowindow = new google.maps.InfoWindow;
-            var uluru = {lat: lat || 25.2854, lng: lng || 51.5310};
+            var uluru = {lat: lat || 25.3548, lng: lng || 51.1839};
             var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 8,
+                zoom: 9,
                 center: uluru
             });
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                fields: ["place_id", "geometry", "formatted_address", "name"],
+            });
             autocomplete.bindTo('bounds', map);
-
-            // Set the data fields to return when the user selects a place.
-            autocomplete.setFields(
-                ['address_components', 'geometry', 'icon', 'name']);
 
             autocomplete.addListener('place_changed', function () {
                 infowindow.close();
@@ -825,7 +845,7 @@
 
             google.maps.event.addListener(map, "click", function (event) {
                 placeMarker(event.latLng);
-                getAddress(event.latLng);
+                getAddress(event.latLng, map, infowindow, geocoder, marker_2);
             });
 
             function placeMarker(location) {
@@ -843,43 +863,29 @@
                 $('#lng').val(latlng.lng);
                 $('#latlngs').change();
 
-                getAddress(location);
+                getAddress(location, map, infowindow, geocoder, marker_2);
             }
 
-            function getAddress(latLng) {
-                geocoder.geocode({'latLng': latLng},
-                    function (results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            if (results[0]) {
-                                document.getElementById("address").value = results[0].formatted_address;
-                            } else {
-                                document.getElementById("address").value = "No results";
-                            }
-                        } else {
-                            document.getElementById("address").value = status;
-                        }
-                    }
-                );
-            }
+            document.getElementById("search_location").addEventListener("click", () => {
+                geocodeLatLng(geocoder, map, infowindow, marker_2);
+            });
         }
 
         function address_map_2() {
+            var geocoder = new google.maps.Geocoder;
+            var infowindow = new google.maps.InfoWindow;
             var input = document.getElementById('edit_address');
             var lat = parseFloat(document.getElementById('edit_lat').value);
             var lng = parseFloat(document.getElementById('edit_lng').value);
-            var autocomplete = new google.maps.places.Autocomplete(input);
-            var geocoder = new google.maps.Geocoder;
-            var infowindow = new google.maps.InfoWindow;
-            var uluru = {lat: lat || 25.2854, lng: lng || 51.5310};
+            var uluru = {lat: lat || 25.3548, lng: lng || 51.1839};
             var map = new google.maps.Map(document.getElementById('edit_map'), {
-                zoom: 8,
+                zoom: 9,
                 center: uluru
             });
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                fields: ["place_id", "geometry", "formatted_address", "name"],
+            });
             autocomplete.bindTo('bounds', map);
-
-            // Set the data fields to return when the user selects a place.
-            autocomplete.setFields(
-                ['address_components', 'geometry', 'icon', 'name']);
 
             autocomplete.addListener('place_changed', function () {
                 infowindow.close();
@@ -917,7 +923,7 @@
 
             google.maps.event.addListener(map, "click", function (event) {
                 placeMarker2(event.latLng);
-                getAddress2(event.latLng);
+                getAddress2(event.latLng, map, infowindow, geocoder, marker);
             });
 
             function placeMarker2(location) {
@@ -935,25 +941,84 @@
                 $('#edit_lng').val(latlng.lng);
                 $('#latlngs').change();
 
-                getAddress2(location);
+                getAddress2(location, map, infowindow, geocoder, marker);
             }
 
-            function getAddress2(latLng) {
-                geocoder.geocode({'latLng': latLng},
-                    function (results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            if (results[0]) {
-                                document.getElementById("edit_address").value = results[0].formatted_address;
-                            } else {
-                                document.getElementById("edit_address").value = "No results";
-                            }
-                        } else {
-                            document.getElementById("edit_address").value = status;
-                        }
-                    }
-                );
-            }
+            document.getElementById("edit_search_location").addEventListener("click", () => {
+                geocodeLatLng2(geocoder, map, infowindow, marker);
+            });
         }
+
+        function geocodeLatLng(geocoder, map, infowindow, marker) {
+            const lat = document.getElementById("search_address_lat").value;
+            const lng = document.getElementById("search_address_lng").value;
+            const latlng = {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+            };
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+
+            getAddress(latlng, map, infowindow, geocoder, marker);
+        }
+
+        function geocodeLatLng2(geocoder, map, infowindow, marker) {
+            const lat = document.getElementById("edit_search_address_lat").value;
+            const lng = document.getElementById("edit_search_address_lng").value;
+            const latlng = {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+            };
+
+            document.getElementById('edit_lat').value = lat;
+            document.getElementById('edit_lng').value = lng;
+
+            getAddress2(latlng, map, infowindow, geocoder, marker);
+        }
+
+        function getAddress(latlng, map, infowindow, geocoder, marker) {
+            geocoder.geocode({'latLng': latlng},
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (results[0]) {
+                            document.getElementById("address").value = results[0].formatted_address;
+
+                            marker.setPosition(latlng);
+
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        } else {
+                            document.getElementById("address").value = "No results";
+                        }
+                    } else {
+                        document.getElementById("address").value = status;
+                    }
+                }
+            );
+        }
+
+        function getAddress2(latlng, map, infowindow, geocoder, marker) {
+            geocoder.geocode({'latLng': latlng},
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (results[0]) {
+                            document.getElementById("edit_address").value = results[0].formatted_address;
+
+                            marker.setPosition(latlng);
+
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        } else {
+                            document.getElementById("edit_address").value = "No results";
+                        }
+                    } else {
+                        document.getElementById("edit_address").value = status;
+                    }
+                }
+            );
+        }
+
     </script>
 
     <script

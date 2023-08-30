@@ -453,12 +453,35 @@
                         '<td style="font-weight:bold">'+ (parseFloat(data.order.total_price) - parseFloat(data.cart_items_price)) +'</td>' +
                         '</tr>';
 
-                    html += '<tr>' +
+                    if(isNaN(parseFloat(data.order.total_price_after_code)) == true){
+                        html += '<tr>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td colspan="1" style="font-weight:bold">@lang('common.discount_price')</td>' +
+                            '<td style="font-weight:bold">'+ 0 +'</td>' +
+                            '</tr>';
+
+                        html += '<tr>' +
                         '<td></td>' +
                         '<td></td>' +
                         '<td colspan="1" style="font-weight:bold">@lang('common.total_price')</td>' +
-                        '<td style="font-weight:bold">'+ data.order.total_price +'</td>' +
-                        '</tr>';
+                        '<td style="font-weight:bold">'+ data.order.total_price +' @lang('common.rq')</td>' +
+                            '</tr>';
+                    }else{
+                        html += '<tr>' +
+                            '<td></td>' +
+                            '<td></td>' +
+                            '<td colspan="1" style="font-weight:bold">@lang('common.discount_price')</td>' +
+                            '<td style="font-weight:bold">'+ ((parseFloat(data.order.total_price)) - parseFloat(data.order.total_price_after_code)) +'</td>' +
+                            '</tr>';
+
+                        html += '<tr>' +
+                        '<td></td>' +
+                        '<td></td>' +
+                        '<td colspan="1" style="font-weight:bold">@lang('common.total_price')</td>' +
+                        '<td style="font-weight:bold">'+  data.order.total_price_after_code +' @lang('common.rq')</td>' +
+                            '</tr>';
+                    }
 
                     get_address();
 

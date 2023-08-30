@@ -215,7 +215,7 @@ class MakeupArtistController extends Controller
         $data['bank_account_name'] = $request->bank_account_name;
         $data['iban'] = $request->iban;
         $data['bank_account_number'] = $request->bank_account_number;
-        if ($request->passwword) {
+        if ($request->password) {
             $data['password'] = Hash::make($request->password);
         }
 

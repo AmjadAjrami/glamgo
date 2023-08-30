@@ -115,7 +115,7 @@ class ArtistInfoController extends Controller
         $data['bank_account_name'] = $request->bank_account_name;
         $data['iban'] = $request->iban;
 
-        if ($request->passwword){
+        if ($request->password){
             $data['password'] = Hash::make($request->password);
         }
 

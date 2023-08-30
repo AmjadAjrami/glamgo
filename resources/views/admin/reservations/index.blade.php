@@ -437,7 +437,7 @@
                     $('#reservation_time').val(data.reservation.reservation_time);
                     $('#provider_name').val(data.reservation.provider_name);
                     $('#provider_type').val(data.reservation.provider_type);
-                    $('#print').attr('href', '{{ url('/admin/reservations/ticket/') }}/' + data.reservation.id);
+                    $('#print').attr('href', '{{ url('/tmg/reservations/ticket/') }}/' + data.reservation.id);
                 }
             });
         });
@@ -508,7 +508,7 @@
 
                     html += '<tr>' +
                         '<td colspan="4" style="text-align:center;font-weight:bold">@lang('common.total_price')</td>' +
-                        '<td>'+ total_price +'</td>' +
+                        '<td style="font-weight:bold">'+ total_price +' @lang('common.rq')</td>' +
                         '</tr>';
 
                     $('#services_body').append(html);

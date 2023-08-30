@@ -173,15 +173,20 @@ class HomeController extends Controller
                         + sin(radians(" . $lat . "))
                         * sin(radians(salons.lat))) AS nearest_distance"))
                 ->having('nearest_distance', '<', 1000)
+                ->orderBy('nearest_distance', 'asc')
                 ->get()->makeHidden(['in_salon_service_types', 'home_service_types']);
         } else {
             $nearest_salons = [];
         }
 
-        $salons = Salon::query()->where('status', 1)->where('type', $request->type)->get()->makeHidden(['in_salon_service_types', 'home_service_types'])->take(4);
+        $salons = Salon::query()->where('status', 1)->where('type', $request->type)->orderByDesc('created_at')->get()->makeHidden(['in_salon_service_types', 'home_service_types'])->take(4);
         $artists = MakeupArtist::query()->where('status', 1)->get()->makeHidden(['in_salon_service_types', 'home_service_types'])->take(4);
         if ($request->type == 2) {
-            $offers = Offer::query()->where('status', 1)->get()->makeHidden([
+            $offers = Offer::query()->where('status', 1)->whereHas('salon', function ($q){
+                $q->where('deleted_at', null);
+            })->orWhere('status', 1)->whereHas('artist', function ($q){
+                $q->where('deleted_at', null);
+            })->get()->makeHidden([
                 'salon_id', 'makeup_artist_id', 'category_id', 'price', 'discount_price', 'add_time', 'salon_name', 'artist_name', 'title', 'description'
             ]);
         } else {
@@ -409,7 +414,7 @@ class HomeController extends Controller
                     $salons = [];
                 }
             } else {
-                $salons = $salons->get();
+                $salons = $salons->orderByDesc('created_at')->get();
             }
         }
 
@@ -435,12 +440,13 @@ class HomeController extends Controller
         $lng = $request->lng;
 
         if ($request->lat && $request->lng) {
-            $nearest_salons = Salon::query()->where('type', $request->type)->select("salons.*", DB::raw("6367 * acos(cos(radians(" . $lat . "))
+            $nearest_salons = Salon::query()->where('status', 1)->where('type', $request->type)->select("salons.*", DB::raw("6367 * acos(cos(radians(" . $lat . "))
                         * cos(radians(salons.lat))
                         * cos(radians(salons.lng) - radians(" . $lng . "))
                         + sin(radians(" . $lat . "))
                         * sin(radians(salons.lat))) AS nearest_distance"))
                 ->having('nearest_distance', '<', 1000)
+                ->orderBy('nearest_distance', 'asc')
                 ->get()->makeHidden(['in_salon_service_types', 'home_service_types']);
         } else {
             $nearest_salons = [];
@@ -464,7 +470,7 @@ class HomeController extends Controller
             return mainResponse(false, $validator->errors()->first(), (object)[], $validator->errors()->messages(), 200);
         }
 
-        $salon = Salon::query()->with('gallery')->find($request->salon_id)->makeVisible(['gallery']);
+        $salon = Salon::query()->where('status', 1)->with('gallery')->find($request->salon_id)->makeVisible(['gallery']);
 
         return mainResponse(true, __('ok'), $salon, [], 200);
     }
@@ -531,7 +537,11 @@ class HomeController extends Controller
      */
     public function offers()
     {
-        $offers = Offer::query()->where('status', 1)->get()->makeHidden(['images']);
+        $offers = Offer::query()->where('status', 1)->whereHas('salon', function ($q){
+            $q->where('deleted_at', null);
+        })->orWhere('status', 1)->whereHas('artist', function ($q){
+            $q->where('deleted_at', null);
+        })->get()->makeHidden(['images']);
 
         return mainResponse(true, __('ok'), $offers, [], 200);
     }
@@ -757,6 +767,7 @@ class HomeController extends Controller
             'salon_id' => 'nullable|exists:salons,id',
             'artist_id' => 'nullable|exists:makeup_artists,id',
             'date' => 'required',
+            'service_type' => 'required|in:1,2',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -765,9 +776,11 @@ class HomeController extends Controller
         }
 
         if ($request->salon_id) {
-            $booking_times = BookingTime::query()->where('salon_id', $request->salon_id)->where('day', $request->day_id)->where('status', 1)->get();
+            $booking_times = BookingTime::query()->where('salon_id', $request->salon_id)
+                ->where('day', $request->day_id)->where('type', $request->service_type)->where('status', 1)->get();
         } else {
-            $booking_times = BookingTime::query()->where('makeup_artist_id', $request->artist_id)->where('day', $request->day_id)->where('status', 1)->get();
+            $booking_times = BookingTime::query()->where('makeup_artist_id', $request->artist_id)
+                ->where('day', $request->day_id)->where('type', $request->service_type)->where('status', 1)->get();
         }
 
         $now_time = Carbon::now();
@@ -1015,7 +1028,7 @@ class HomeController extends Controller
             'salon_id' => $reservation->salon_id,
             'makeup_artist_id' => $reservation->makeup_artist_id,
             'offer_id' => (int)$reservation->offer_id,
-            'owner_type' => $offer->offer_id,
+            'owner_type' => $offer->owner_type,
             'items_count' => 1,
             'total_price' => $reservation->total_price,
             'reservation_items' => $items,
@@ -1221,72 +1234,72 @@ class HomeController extends Controller
             }
         }
 
-//        if (!in_array($request->payment_method_id, [1, 2])) {
-//            $lang = request()->header('accept-language') == 'ar' ? 'Arb' : 'ENG';
-//            $url = url('/reservation_payment_webview?reservation_id=' . $reservation->id . '&amount=' . $amount . '&mobile=' . $user->mobile . '&payment_method_id=' . $request->payment_method_id
-//                . '&code_id=' . $request->promo_code_id . '&code_type=' . $code_type . '&code_price=' . $code_price . '&total_price_after_code=' . $total_price_after_code . '&lang=' . $lang);
-//            return mainResponse_2(true, __('ok'), $url, [], 200);
-//        } else {
-        $reservation->update([
-            'payment_method_id' => $request->payment_method_id,
-            'promo_code_id' => $request->promo_code_id ?? null,
-            'transaction_no' => $request->transaction_no ?? null,
-            'code_type' => $code_type,
-            'code_price' => $code_price,
-            'total_price_after_code' => $total_price_after_code,
-            'status' => 1,
-        ]);
+        if (!in_array($request->payment_method_id, [1, 2])) {
+            $lang = request()->header('accept-language') == 'ar' ? 'ARB' : 'ENG';
+            $url = url('/api/reservation_payment_webview?reservation_id=' . $reservation->id . '&amount=' . $amount . '&mobile=' . $user->mobile . '&payment_method_id=' . $request->payment_method_id
+                . '&code_id=' . $request->promo_code_id . '&code_type=' . $code_type . '&code_price=' . $code_price . '&total_price_after_code=' . $total_price_after_code . '&lang=' . $lang);
+            return mainResponse_2(true, __('ok'), $url, [], 200);
+        } else {
+            $reservation->update([
+                'payment_method_id' => $request->payment_method_id,
+                'promo_code_id' => $request->promo_code_id ?? null,
+                'transaction_no' => $request->transaction_no ?? null,
+                'code_type' => $code_type,
+                'code_price' => $code_price,
+                'total_price_after_code' => $total_price_after_code,
+                'status' => 1,
+            ]);
 
-        if ($request->payment_method_id == 2) {
-            $user = User::query()->find(auth('sanctum')->id());
-            $user->balance -= $amount;
+            if ($request->payment_method_id == 2) {
+                $user = User::query()->find(auth('sanctum')->id());
+                $user->balance -= $amount;
 
-            $user->update();
-        }
+                $user->update();
+            }
 
-        Transaction::query()->insert([
-            'user_id' => auth('sanctum')->id(),
-            'type' => 1,
-            'price' => $amount,
-            'payment_method_id' => $request->payment_method_id,
-            'transaction_no' => $request->transaction_no,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        $title = 'حجز جديد';
-        $message = 'لديك حجز جديد من المستخدم ' . $user->name;
-
-        $notification = Notification::query()->create([
-            'image' => @$user->image,
-            'type' => $reservation->salon_id != null ? 'salon_reservation_notification' : 'artist_reservation_notification',
-            'send_date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
-            'is_seen' => 0,
-            'reference_id' => $reservation->salon_id != null ? $reservation->salon_id : $reservation->makeup_artist_id,
-            'user_id' => $user->id,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        foreach (locales() as $key => $value) {
-            NotificationTranslation::query()->insert([
-                'notification_id' => $notification->id,
-                'title' => $key == 'ar' ? 'حجز جديد' : 'New Message',
-                'message' => $key == 'ar' ? 'لديك حجز جديد من المستخدم ' . $user->name : 'You have new reservation from ' . $user->name,
-                'locale' => $key,
+            Transaction::query()->insert([
+                'user_id' => auth('sanctum')->id(),
+                'type' => 1,
+                'price' => $amount,
+                'payment_method_id' => $request->payment_method_id,
+                'transaction_no' => $request->transaction_no,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-        }
 
-        if ($reservation->salon_id != null) {
-            event(new \App\Events\Notification($title, $message, $reservation->salon_id, 0, 'salon_reservation_notification'));
-        } else {
-            event(new \App\Events\Notification($title, $message, 0, $reservation->makeup_artist_id, 'artist_reservation_notification'));
-        }
+            $title = 'حجز جديد';
+            $message = 'لديك حجز جديد من المستخدم ' . $user->name;
 
-        return mainResponse_2(true, __('common.done_successfully'), (object)[], [], 200);
-//        }
+            $notification = Notification::query()->create([
+                'image' => @$user->image,
+                'type' => $reservation->salon_id != null ? 'salon_reservation_notification' : 'artist_reservation_notification',
+                'send_date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
+                'is_seen' => 0,
+                'reference_id' => $reservation->salon_id != null ? $reservation->salon_id : $reservation->makeup_artist_id,
+                'user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+
+            foreach (locales() as $key => $value) {
+                NotificationTranslation::query()->insert([
+                    'notification_id' => $notification->id,
+                    'title' => $key == 'ar' ? 'حجز جديد' : 'New Message',
+                    'message' => $key == 'ar' ? 'لديك حجز جديد من المستخدم ' . $user->name : 'You have new reservation from ' . $user->name,
+                    'locale' => $key,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
+
+            if ($reservation->salon_id != null) {
+                event(new \App\Events\Notification($title, $message, $reservation->salon_id, 0, 'salon_reservation_notification'));
+            } else {
+                event(new \App\Events\Notification($title, $message, 0, $reservation->makeup_artist_id, 'artist_reservation_notification'));
+            }
+
+            return mainResponse_2(true, __('common.done_successfully'), (object)[], [], 200);
+        }
     }
 
     /**
@@ -1440,11 +1453,32 @@ class HomeController extends Controller
         $reservation_items = $reservation->items->makeHidden(['created_at', 'updated_at'])->groupBy('service_type_id');
 
         $items = [];
-        foreach ($reservation_items as $reservation_item) {
+        if ($reservation->offer_id != null) {
+            $offer = Offer::query()->find($reservation->offer_id);
             $items[] = [
-                'service_type_title' => ServiceType::query()->find($reservation_item[0]->service_type_id)->name,
-                'items' => $reservation_item
+                'service_type_title' => $offer->title,
+                'items' => [
+                    'id' => $reservation->offer_id,
+                    'reservation_id' => $reservation->id,
+                    'service_type_id' => $offer->service_type,
+                    'service_id' => $reservation->offer_id,
+                    'service_category' => $offer->category_id,
+                    'price' => $offer->price,
+                    'discount_price' => $offer->discount_price,
+                    'quantity' => $reservation->quantity,
+                    'service_name' => $offer->title,
+                    'service_image' => $offer->image,
+                    'total_price' => $reservation->total_price,
+                    'service_category_name' => $offer->category_name
+                ]
             ];
+        } else {
+            foreach ($reservation_items as $reservation_item) {
+                $items[] = [
+                    'service_type_title' => ServiceType::query()->find($reservation_item[0]->service_type_id)->name,
+                    'items' => $reservation_item
+                ];
+            }
         }
 
         $data = [
@@ -1468,8 +1502,8 @@ class HomeController extends Controller
                 'services_count' => $reservation->offer_id == null ? count($reservation->items) : 1,
                 'people_count' => $reservation->offer_id == null ? $reservation->items->sum('quantity') : $reservation->offer_quantity,
                 'price' => $reservation->total_price,
-                'discount' => 0,
-                'total' => $reservation->total_price
+                'discount' => $reservation->promo_code_id == null ? 0 : $reservation->code_price,
+                'total' => $reservation->promo_code_id == null ? $reservation->total_price : $reservation->total_price_after_code
             ]
         ];
 
@@ -1551,6 +1585,7 @@ class HomeController extends Controller
             $product_exists = CartItem::query()->where('cart_id', $request->cart_id)->where('product_id', $product->id)->first();
             if ($product_exists) {
                 $product_exists->quantity += $request->quantity;
+                $product_exists->total_price = $product_price * $product_exists->quantity;
                 $product_exists->update();
 //                return mainResponse_2(true, __('common.product_cart'), (object)[], [], 200);
             } else {
@@ -1716,8 +1751,10 @@ class HomeController extends Controller
         $delivery = Setting::query()->where('key', 'delivery_price')->first();
         $delivery_price = $delivery == null ? 0 : (int)$delivery->value;
 
+        $order_amount = $cart_price + $delivery_price;
+
         if ($request->payment_method_id == 2) {
-            if ($user->balance < $cart_price) {
+            if ($user->balance < $order_amount) {
                 return mainResponse_2(false, __('common.balance_not_enough'), (object)[], [], 200);
             }
         }
@@ -1730,7 +1767,7 @@ class HomeController extends Controller
             $code = PromoCode::query()->find($request->promo_code_id);
 
             $code_amount = 0;
-            $price = $cart_price;
+            $price = $order_amount;
 
             if ($code->discount_type == 2) {
                 $code_amount = ($price * ($code->discount / 100));
@@ -1752,89 +1789,88 @@ class HomeController extends Controller
         $order = Order::query()->create([
             'user_id' => auth('sanctum')->id(),
             'cart_id' => $request->cart_id,
-            'total_price' => $cart_price + $delivery_price,
+            'total_price' => $order_amount,
             'promo_code_id' => $request->promo_code_id ?? null,
             'code_type' => $code_type,
             'code_price' => $code_price,
-            'total_price_after_code' =>$total_price_after_code != null ? $total_price_after_code + $delivery_price : null,
+            'delivery_price' => $delivery_price,
+            'total_price_after_code' => $total_price_after_code != null ? $total_price_after_code + $delivery_price : null,
             'address_id' => $request->address_id,
         ]);
 
-        $amount = $total_price_after_code == null ? $cart_price : $total_price_after_code;
+        if (!in_array($request->payment_method_id, [1, 2])) {
+            $lang = request()->header('accept-language') == 'ar' ? 'ARB' : 'ENG';
+            $url = url('/api/order_payment_webview?order_id=' . $order->id . '&payment_method_id=' . $request->payment_method_id . '&amount=' . $order_amount . '&mobile=' . $user->mobile . '&cart_id=' . $request->cart_id . '&lang=' . $lang);
+            return mainResponse_2(true, __('ok'), $url, [], 200);
+        } else {
+            Cart::query()->find($request->cart_id)->update(['status' => 2]);
 
-//        if (!in_array($request->payment_method_id, [1, 2])) {
-//            $lang = request()->header('accept-language') == 'ar' ? 'Arb' : 'ENG';
-//            $url = url('/order_payment_webview?order_id=' . $order->id . '&payment_method_id=' . $request->payment_method_id . '&amount=' . $amount . '&mobile=' . $user->mobile . '&cart_id=' . $request->cart_id . '&lang=' . $lang);
-//            return mainResponse_2(true, __('ok'), $url, [], 200);
-//        } else {
-        Cart::query()->find($request->cart_id)->update(['status' => 2]);
+            Order::query()->find($order->id)->update([
+                'payment_method_id' => $request->payment_method_id,
+                'transaction_no' => $request->transaction_no ?? null,
+                'status' => 1,
+            ]);
 
-        Order::query()->find($order->id)->update([
-            'payment_method_id' => $request->payment_method_id,
-            'transaction_no' => $request->transaction_no ?? null,
-            'status' => 1,
-        ]);
-
-        OrderStatus::query()->insert([
-            'order_id' => $order->id,
-            'status' => 1,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        if ($request->payment_method_id == 2) {
-            $user = User::query()->find(auth('sanctum')->id());
-            $user->balance -= $amount;
-            $user->update();
-        }
-
-        Transaction::query()->insert([
-            'user_id' => auth('sanctum')->id(),
-            'type' => 1,
-            'price' => $request->promo_code_id ? $price : $cart_price,
-            'payment_method_id' => $request->payment_method_id,
-            'transaction_no' => $request->transaction_no,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        foreach ($cart_items as $item){
-            $product = Product::query()->find($item->product_id);
-            $product->stock -= $item->quantity;
-            $product->save();
-        }
-
-        $user = User::query()->find(auth('sanctum')->id());
-
-        $title = 'طلب جديد';
-        $message = 'لديك طلب جديد من المستخدم ' . $user->name;
-
-        $notification = Notification::query()->create([
-            'image' => @$user->image,
-            'type' => 'order_notification',
-            'send_date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
-            'is_seen' => 0,
-            'reference_id' => 0,
-            'user_id' => $user->id,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        foreach (locales() as $key => $value) {
-            NotificationTranslation::query()->insert([
-                'notification_id' => $notification->id,
-                'title' => $key == 'ar' ? 'طلب جديد' : 'New Order',
-                'message' => $key == 'ar' ? 'لديك طلب جديد من المستخدم ' . $user->name : 'You have new order from ' . $user->name,
-                'locale' => $key,
+            OrderStatus::query()->insert([
+                'order_id' => $order->id,
+                'status' => 1,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
+
+            if ($request->payment_method_id == 2) {
+                $user = User::query()->find(auth('sanctum')->id());
+                $user->balance -= $order_amount;
+                $user->update();
+            }
+
+            Transaction::query()->insert([
+                'user_id' => auth('sanctum')->id(),
+                'type' => 1,
+                'price' => $request->promo_code_id ? $total_price_after_code : $order_amount,
+                'payment_method_id' => $request->payment_method_id,
+                'transaction_no' => $request->transaction_no,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+
+            foreach ($cart_items as $item) {
+                $product = Product::query()->find($item->product_id);
+                $product->stock -= $item->quantity;
+                $product->save();
+            }
+
+            $user = User::query()->find(auth('sanctum')->id());
+
+            $title = 'طلب جديد';
+            $message = 'لديك طلب جديد من المستخدم ' . $user->name;
+
+            $notification = Notification::query()->create([
+                'image' => @$user->image,
+                'type' => 'order_notification',
+                'send_date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
+                'is_seen' => 0,
+                'reference_id' => 0,
+                'user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+
+            foreach (locales() as $key => $value) {
+                NotificationTranslation::query()->insert([
+                    'notification_id' => $notification->id,
+                    'title' => $key == 'ar' ? 'طلب جديد' : 'New Order',
+                    'message' => $key == 'ar' ? 'لديك طلب جديد من المستخدم ' . $user->name : 'You have new order from ' . $user->name,
+                    'locale' => $key,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
+
+            event(new \App\Events\Notification($title, $message, 0, 0, 'order_notification'));
+
+            return mainResponse_2(true, __('common.done_successfully'), (object)[], [], 200);
         }
-
-        event(new \App\Events\Notification($title, $message, 0, 0, 'order_notification'));
-
-        return mainResponse_2(true, __('common.done_successfully'), (object)[], [], 200);
-//        }
     }
 
     /**
@@ -1850,7 +1886,7 @@ class HomeController extends Controller
         $amount = $request->amount;
         $mobile = $request->mobile;
         $email = $request->email;
-        $callback_url = url('/api/order_callback?order_id=' . $request->order_id);
+        $callback_url = url('/api/order_callback?order_id=' . $request->order_id . '&payment_method_id=' . $request->payment_method_id);
         $cart_items = \App\Models\CartItem::query()->where('cart_id', $request->cart_id)->get();
         $lang = $request->lang;
         $items = [];
@@ -1951,7 +1987,7 @@ class HomeController extends Controller
      */
     public function get_orders(Request $request)
     {
-        $orders = Order::query()->where('user_id', auth('sanctum')->id());
+        $orders = Order::query()->whereNotNull('payment_method_id')->where('user_id', auth('sanctum')->id());
 
         if ($request->status) {
             $orders = $orders->where('status', $request->status);
@@ -2066,7 +2102,7 @@ class HomeController extends Controller
                 'image' => @$order->payment_method->image,
             ],
             'bill' => $bill,
-            'delivery_price' => (int)$delivery_price,
+            'delivery_price' => $order->delivery_price,
             'total_price' => $total_price,
             'has_promo_code_discount' => $order->code_price != null ? true : false,
             'discount' => $order->code_price,
@@ -2267,7 +2303,7 @@ class HomeController extends Controller
         $data = [];
 
         $salons_ids = SalonTranslation::query()->where('name', 'like', '%' . $request->search_data . '%')->pluck('salon_id');
-        $salons = Salon::query()->whereIn('id', $salons_ids)->get()->makeHidden([
+        $salons = Salon::query()->where('status', 1)->whereIn('id', $salons_ids)->get()->makeHidden([
             'in_salon_service_types', 'home_service_types'
         ]);
 

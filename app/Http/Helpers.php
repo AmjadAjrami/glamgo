@@ -241,6 +241,36 @@ function fcmNotification($token, $id, $title, $content, $body, $type, $device, $
     return $result;
 }
 
+
+function sendMessage($mobile, $message)
+{
+    $headers = [
+        'MIME-Type:application/x-www-form-urlencoded',
+    ];
+
+    $fields = [
+        'to' => $mobile,
+        'message' => $message,
+        'sender' => 'GlamGo',
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://api.maqsam.com/v2/sms');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    curl_setopt($ch, CURLOPT_USERPWD, 'crgOKnnCB0YolPsyQOPT' . ':' . 'Lfg0GhelIrZh4Dxa1WQw');
+    $result = curl_exec($ch);
+
+    curl_close($ch);
+
+    return $result;
+}
+
+
 function getDistanceInKM($lat1, $lon1, $lat2, $lon2)
 {
     $pi80 = M_PI / 180;

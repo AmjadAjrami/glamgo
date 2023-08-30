@@ -199,7 +199,7 @@ class ProfileController extends Controller
      */
     public function wallet()
     {
-        $transactions = Transaction::query()->where('user_id', auth('sanctum')->id())->get();
+        $transactions = Transaction::query()->where('user_id', auth('sanctum')->id())->orderByDesc('created_at')->get();
         $balance = auth('sanctum')->user()->balance;
 
         $data = [
@@ -219,7 +219,7 @@ class ProfileController extends Controller
         $rules = [
             'balance' => 'required',
             'payment_method_id' => 'required|exists:payment_methods,id',
-            'transaction_no' => 'required',
+//            'transaction_no' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -229,21 +229,26 @@ class ProfileController extends Controller
 
         $user = User::query()->find(auth('sanctum')->id());
 
-        $user = User::query()->find($request->user_id);
-        $user->balance += $request->amount;
-        $user->update();
+        $lang = request()->header('accept-language') == 'ar' ? 'ARB' : 'ENG';
+        $url = url('/api/add_balance_webview?id=' . $user->id . '&amount=' . $request->balance . '&mobile=' . $user->mobile . '&payment_method_id=' . 4
+            . '&code_id=&code_type=&code_price=&total_price_after_code=' . $request->balance . '&lang=' . $lang);
+        return mainResponse_2(true, __('ok'), $url, [], 200);
 
-        Transaction::query()->insert([
-            'user_id' => $user->id,
-            'type' => 2,
-            'price' => $request->amount,
-            'payment_method_id' => $request->payment_method_id,
-            'transaction_no' => $request->transaction_no,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        return mainResponse_2(true, __('تم الشحن بمجاح'), (object)[], [], 200);
+//        $user = User::query()->find($request->user_id);
+//        $user->balance += $request->amount;
+//        $user->update();
+//
+//        Transaction::query()->insert([
+//            'user_id' => $user->id,
+//            'type' => 2,
+//            'price' => $request->amount,
+//            'payment_method_id' => $request->payment_method_id,
+//            'transaction_no' => $request->transaction_no,
+//            'created_at' => Carbon::now(),
+//            'updated_at' => Carbon::now(),
+//        ]);
+//
+//        return mainResponse_2(true, __('تم الشحن بمجاح'), (object)[], [], 200);
     }
 
     /**
@@ -256,7 +261,7 @@ class ProfileController extends Controller
         $amount = $request->amount;
         $mobile = $request->mobile;
         $email = $request->email;
-        $callback_url = url('/api/add_balance_callback?id=' . $request->id . '&amount=' . $amount  . '&payment_method_id=' . $request->payment_method_id . '&user_id=' . $request->user_id);
+        $callback_url = url('/api/add_balance_callback?id=' . $request->id . '&amount=' . $amount  . '&payment_method_id=' . $request->payment_method_id . '&user_id=' . $request->id);
         $items = [
             [
                 'order_id' => $order_id,

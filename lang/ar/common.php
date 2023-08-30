@@ -48,7 +48,7 @@ return [
     'approved_users' => 'العملاء المعتمدين',
     'disapproved_users' => 'العملاء غير المعتمدين',
     'email' => 'البريد الإلكتروني',
-    'mobile' => 'الجوال',
+    'mobile' => 'الهاتف',
     'first_name' => 'الإسم الأول',
     'last_name' => 'الإسم الأخير',
     'user' => 'المستخدم',

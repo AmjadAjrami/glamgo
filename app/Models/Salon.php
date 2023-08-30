@@ -6,11 +6,12 @@ use Astrotomic\Translatable\Translatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Salon extends Authenticatable
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, SoftDeletes;
 
     protected $table = 'salons';
     protected $guarded = [];
@@ -102,12 +103,12 @@ class Salon extends Authenticatable
 
     public function in_salon_services()
     {
-        return $this->hasMany(Service::class, 'salon_id')->whereIn('service_category', [1, 3]);
+        return $this->hasMany(Service::class, 'salon_id')->where('status', 1)->whereIn('service_category', [1, 3]);
     }
 
     public function home_services()
     {
-        return $this->hasMany(Service::class, 'salon_id')->whereIn('service_category', [2, 3]);
+        return $this->hasMany(Service::class, 'salon_id')->where('status', 1)->whereIn('service_category', [2, 3]);
     }
 
     public function getInSalonServiceTypesAttribute()
@@ -116,10 +117,12 @@ class Salon extends Authenticatable
         $all_services = [];
         foreach ($this->in_salon_services->groupBy('service_type_id') as $key => $service){
             $service_type = ServiceType::query()->find($key);
-            $services['id'] = $key;
-            $services['name'] = $service_type->name;
-            $services['services'] = $service;
-            $all_services[] = $services;
+            if ($service_type->status == 1){
+                $services['id'] = $key;
+                $services['name'] = $service_type->name;
+                $services['services'] = $service;
+                $all_services[] = $services;
+            }
         }
 
         return $all_services;
@@ -131,10 +134,12 @@ class Salon extends Authenticatable
         $all_services = [];
         foreach ($this->home_services->groupBy('service_type_id') as $key => $service){
             $service_type = ServiceType::query()->find($key);
-            $services['id'] = $key;
-            $services['name'] = $service_type->name;
-            $services['services'] = $service;
-            $all_services[] = $services;
+            if ($service_type->status == 1){
+                $services['id'] = $key;
+                $services['name'] = $service_type->name;
+                $services['services'] = $service;
+                $all_services[] = $services;
+            }
         }
 
         return $all_services;

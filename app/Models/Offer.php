@@ -6,10 +6,11 @@ use Astrotomic\Translatable\Translatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Offer extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, SoftDeletes;
 
     protected $table = 'offers';
     protected $guarded = [];
@@ -37,7 +38,7 @@ class Offer extends Model
 
     public function salon()
     {
-        return $this->belongsTo(Salon::class, 'salon_id');
+        return $this->belongsTo(Salon::class, 'salon_id')->withTrashed();
     }
 
     public function getSalonNameAttribute()
@@ -47,7 +48,7 @@ class Offer extends Model
 
     public function artist()
     {
-        return $this->belongsTo(MakeupArtist::class, 'makeup_artist_id');
+        return $this->belongsTo(MakeupArtist::class, 'makeup_artist_id')->withTrashed();
     }
 
     public function getArtistNameAttribute()

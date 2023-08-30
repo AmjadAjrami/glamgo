@@ -42,4 +42,9 @@ class ReservationItem extends Model
     {
         return $this->service->service_category_name;
     }
+
+    public function getDiscountPriceAttribute($value)
+    {
+        return $value == null ? $this->price : $value;
+    }
 }

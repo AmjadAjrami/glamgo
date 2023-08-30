@@ -57,7 +57,7 @@ class ForgotPasswordController extends Controller
         $user = User::query()->where('mobile', $new_mobile)->get()->first();
 
         if (!$user){
-            return mainResponse(true, __('common.mobile_not_found'), (object)[], [], 501);
+            return mainResponse(false, __('common.mobile_not_found'), (object)[], [], 501);
         }
 
 //        $code = str_replace('0', '1', \Carbon\Carbon::now()->timestamp);
@@ -135,7 +135,7 @@ class ForgotPasswordController extends Controller
         $code = MobileVerification::query()->where('mobile', $new_mobile)->where('type', 2)->first();
 
         if (!$code){
-            return mainResponse(true, __('common.mobile_not_found'), (object)[], [], 501);
+            return mainResponse(false, __('common.mobile_not_found'), (object)[], [], 501);
         }
 
         $rules = [
@@ -156,7 +156,7 @@ class ForgotPasswordController extends Controller
 
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules, $validation);
         if ($validator->fails()) {
-            return mainResponse(true, $validator->errors()->first(), [], $validator->errors()->messages());
+            return mainResponse(false, $validator->errors()->first(), [], $validator->errors()->messages());
         }
 
         if ($request->mobile) {

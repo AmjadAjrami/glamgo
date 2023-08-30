@@ -87,8 +87,8 @@ class FinancialAccountsController extends Controller
             'remaining_cash' => ($app_percentage_cash - $cash_withdraws) <= 0 ? 0 : $app_percentage_cash - $cash_withdraws,
         ];
 
-        $salon_withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 1)->get();
-        $salon_cash_transfers = Withdraw::query()->where('salon_id', $salon->id)->where('type', 2)->get();
+        $salon_withdraws = Withdraw::query()->where('salon_id', $salon->id)->where('type', 1)->orderByDesc('created_at')->get();
+        $salon_cash_transfers = Withdraw::query()->where('salon_id', $salon->id)->where('type', 2)->orderByDesc('created_at')->get();
 
         return view('salon.financial_accounts.index', compact('details', 'salon_withdraws', 'salon_cash_transfers'));
     }

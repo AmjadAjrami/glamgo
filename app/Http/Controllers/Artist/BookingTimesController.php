@@ -110,7 +110,9 @@ class BookingTimesController extends Controller
         }
 
         BookingTime::query()->where('makeup_artist_id', auth('artist')->id())->where('day', $request->day)->where('type', $request->type)
-            ->whereNotIn('id', $request->booking_time['time_id'])->delete();
+            ->whereNotIn('id', $request->booking_time['time_id'])->update([
+                'status' => 3
+            ]);
 
         for ($i = 0; $i < count($request->booking_time['from']); $i++) {
             if ($request->booking_time['time_id'][$i] == 0) {

@@ -82,7 +82,6 @@ class SalonInfoController extends Controller
      */
     public function update(Request $request)
     {
-//        dd($request->all());
         $salon = Salon::query()->find(auth('salon')->id());
 
         $rules = [
@@ -92,7 +91,7 @@ class SalonInfoController extends Controller
             'lng' => 'required',
             'address_text' => 'required',
             'email' => 'required|email|unique:salons,email,' . $salon->id,
-            'mobile' => 'required|unique:salons,mobile,' . $salon->id,
+            'mobile' => 'nullable|unique:salons,mobile,' . $salon->id,
             'password' => 'nullable',
             'video' => 'nullable',
             'thumbnail' => 'required_if:video,!=,null',
@@ -114,12 +113,14 @@ class SalonInfoController extends Controller
         $data['lng'] = $request->lng;
         $data['address_text'] = $request->address_text;
         $data['email'] = $request->email;
-        $data['mobile'] = $request->mobile;
+        if ($request->mobile){
+            $data['mobile'] = $request->mobile;
+        }
         $data['bank_name'] = $request->bank_name;
         $data['bank_account_name'] = $request->bank_account_name;
         $data['iban'] = $request->iban;
 
-        if ($request->passwword){
+        if ($request->password){
             $data['password'] = Hash::make($request->password);
         }
 

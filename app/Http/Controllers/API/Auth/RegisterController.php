@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
@@ -23,8 +24,8 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => 'required|string|max:255',
-            'email' => 'required|unique:users,email',
-            'mobile' => 'required|unique:users,mobile',
+            'email' => 'required|unique:users,email,NULL,id,deleted_at,NULL',
+            'mobile' => 'required|unique:users,mobile,NULL,id,deleted_at,NULL',
             'gender' => 'nullable',
             'country_id' => 'required|exists:countries,id',
             'city_id' => 'required|exists:cities,id',
@@ -72,6 +73,11 @@ class RegisterController extends Controller
             return mainResponse_2(false, __('common.mobile_unique'), (object)[], [__('common.mobile_unique')], 200);
         }
 
+        $email_exists = User::query()->where('email', $data['email'])->exists();
+        if ($email_exists){
+            return mainResponse_2(false, __('common.email_unique'), (object)[], [__('common.email_unique')], 200);
+        }
+
         $user = $this->create($data);
 
         MobileToken::query()->updateOrCreate(
@@ -79,10 +85,10 @@ class RegisterController extends Controller
             ['user_id' => $user->id, 'token' => $request->token, 'device' => $request->device]
         );
 
-        //        $code = str_replace('0', '', \Carbon\Carbon::now()->timestamp);
-        //        $code = str_shuffle($code);
-        //        $code = substr($code, 0, 6);
-        $code = 1111;
+        $code = str_replace('0', '', \Carbon\Carbon::now()->timestamp);
+        $code = str_shuffle($code);
+        $code = substr($code, 0, 4);
+//        $code = 1111;
 
         $mobile = $request->mobile;
         if (substr($mobile, 0, 1) == 0) {
@@ -90,6 +96,16 @@ class RegisterController extends Controller
         } else {
             $new_mobile = $request->mobile;
         }
+
+        if (request()->header('accept-language') == 'ar'){
+            $message = 'رمز التحقق الخاص بك: ' . $code;
+        }else{
+            $message = 'Your Verification Code is: ' . $code;
+        }
+
+        $sms_mobile = '+974' . $new_mobile;
+
+        sendMessage($sms_mobile, $message);
 
         MobileVerification::query()->where('mobile', $new_mobile)->delete();
         MobileVerification::query()->insert(['mobile' => $new_mobile, 'code' => bcrypt($code), 'type' => 1]);

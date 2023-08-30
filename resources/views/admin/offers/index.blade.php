@@ -138,7 +138,8 @@
                                    for="offer_for">{{ __('common.offer_for') }}</label>
                             <select id="offer_for" name="offer_for" class="form-control select2">
                                 <option selected disabled>@lang('common.choose')</option>
-                                <option value="1">@lang('common.salon')</option>
+                                <option value="1">@lang('common.men_salons')</option>
+                                <option value="3">@lang('common.women_salons')</option>
                                 <option value="2">@lang('common.artist')</option>
                             </select>
                             @if($errors->has('offer_for'))
@@ -150,10 +151,6 @@
                             <label class="form-label"
                                    for="salon_id">{{ __('common.salon') }}</label>
                             <select id="salon_id" name="salon_id" class="form-control select2">
-                                <option selected disabled>@lang('common.choose')</option>
-                                @foreach($salons as $salon)
-                                    <option value="{{ $salon->id }}">{{ $salon->name }}</option>
-                                @endforeach
                             </select>
                             @if($errors->has('salon_id'))
                                 <div
@@ -182,6 +179,19 @@
                             @if($errors->has('category_id'))
                                 <div
                                     style="color: red">{{ $errors->first('category_id') }}</div>
+                            @endif
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"
+                                   for="service_type">{{ __('common.service_type') }}</label>
+                            <select id="service_type" name="service_type" class="form-control">
+                                <option selected disabled>@lang('common.choose')</option>
+                                <option value="1">@lang('common.internal')</option>
+                                <option value="2">@lang('common.external')</option>
+                            </select>
+                            @if($errors->has('service_type'))
+                                <div
+                                    style="color: red">{{ $errors->first('service_type') }}</div>
                             @endif
                         </div>
                         <div class="col-12 col-md-6">
@@ -286,7 +296,8 @@
                                    for="edit_offer_for">{{ __('common.offer_for') }}</label>
                             <select id="edit_offer_for" name="offer_for" class="form-control select2">
                                 <option selected disabled>@lang('common.choose')</option>
-                                <option value="1">@lang('common.salon')</option>
+                                <option value="1">@lang('common.men_salons')</option>
+                                <option value="3">@lang('common.women_salons')</option>
                                 <option value="2">@lang('common.artist')</option>
                             </select>
                             @if($errors->has('offer_for'))
@@ -298,10 +309,6 @@
                             <label class="form-label"
                                    for="edit_salon_id">{{ __('common.salon') }}</label>
                             <select id="edit_salon_id" name="salon_id" class="form-control select2">
-                                <option selected disabled>@lang('common.choose')</option>
-                                @foreach($salons as $salon)
-                                    <option value="{{ $salon->id }}">{{ $salon->name }}</option>
-                                @endforeach
                             </select>
                             @if($errors->has('salon_id'))
                                 <div
@@ -330,6 +337,19 @@
                             @if($errors->has('category_id'))
                                 <div
                                     style="color: red">{{ $errors->first('category_id') }}</div>
+                            @endif
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"
+                                   for="edit_service_type">{{ __('common.service_type') }}</label>
+                            <select id="edit_service_type" name="service_type" class="form-control">
+                                <option selected disabled>@lang('common.choose')</option>
+                                <option value="1">@lang('common.internal')</option>
+                                <option value="2">@lang('common.external')</option>
+                            </select>
+                            @if($errors->has('service_type'))
+                                <div
+                                    style="color: red">{{ $errors->first('service_type') }}</div>
                             @endif
                         </div>
                         <div class="col-12 col-md-6">
@@ -459,7 +479,7 @@
         $('#offer_for').on('change', function () {
             var value = $(this).val();
 
-            if (value == 1) {
+            if (value == 1 || value == 3) {
                 $('#salons_div').show();
                 $('#artists_div').hide();
             } else {
@@ -476,14 +496,24 @@
                 method: 'GET',
                 success: function (data) {
                     var categories = data.categories;
+                    var salons = data.salons;
                     var data_append = "<option selected disabled>@lang('common.choose')</option>";
                     $.each(categories, function (index, value) {
                         data_append += '<option value=' + value.id + '>' + value.name + '</option>';
                     });
 
+                    var data_append_2 = "<option selected disabled>@lang('common.choose')</option>";
+                    $.each(salons, function (index, value) {
+                        data_append_2 += '<option value=' + value.id + '>' + value.name + '</option>';
+                    });
+
                     $('#category_id').empty();
                     $('#category_id').append(data_append);
                     $('#category_id').trigger('change');
+
+                    $('#salon_id').empty();
+                    $('#salon_id').append(data_append_2);
+                    $('#salon_id').trigger('change');
                 }
             });
         });
@@ -491,7 +521,7 @@
         $('#edit_offer_for').on('change', function () {
             var value = $(this).val();
 
-            if (value == 1) {
+            if (value == 1 || value == 3) {
                 $('#edit_salons_div').show();
                 $('#edit_artists_div').hide();
             } else {
@@ -508,14 +538,24 @@
                 method: 'GET',
                 success: function (data) {
                     var categories = data.categories;
+                    var salons = data.salons;
                     var data_append = "<option selected disabled>@lang('common.choose')</option>";
                     $.each(categories, function (index, value) {
                         data_append += '<option value=' + value.id + '>' + value.name + '</option>';
                     });
 
+                    var data_append_2 = "<option selected disabled>@lang('common.choose')</option>";
+                    $.each(salons, function (index, value) {
+                        data_append_2 += '<option value=' + value.id + '>' + value.name + '</option>';
+                    });
+
                     $('#edit_category_id').empty();
                     $('#edit_category_id').append(data_append);
                     $('#edit_category_id').trigger('change');
+
+                    $('#edit_salon_id').empty();
+                    $('#edit_salon_id').append(data_append_2);
+                    $('#edit_salon_id').trigger('change');
                 }
             });
         });
@@ -538,9 +578,6 @@
                 $('#edit_description_en').val(button.data('description_en'));
 
                 if (button.data('salon_id') != '') {
-                    $('#edit_salon_id').val(button.data('salon_id'));
-                    $('#edit_salon_id').trigger('change');
-
                     $('#edit_salons_div').show();
                     $('#edit_artists_div').hide();
                     $('#edit_offer_for').val(1);
@@ -550,11 +587,14 @@
                         headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'}
                     });
 
+                    var type = button.data('salon_type') == 1 ? 1 : 3;
+
                     $.ajax({
-                        url: '{{ url(app()->getLocale() . '/tmg/offers/categories/') }}/' + 1,
+                        url: '{{ url(app()->getLocale() . '/tmg/offers/categories/') }}/' + type,
                         method: 'GET',
                         success: function (data) {
                             var categories = data.categories;
+                            var salons = data.salons;
                             var data_append = "<option disabled>@lang('common.choose')</option>";
                             $.each(categories, function (index, value) {
                                 if (value.id == button.data('category_id')) {
@@ -564,9 +604,22 @@
                                 }
                             });
 
+                            var data_append_2 = "<option selected disabled>@lang('common.choose')</option>";
+                            $.each(salons, function (index, value) {
+                                if (value.id == button.data('salon_id')) {
+                                    data_append_2 += '<option value=' + value.id + ' selected>' + value.name + '</option>';
+                                } else {
+                                    data_append_2 += '<option value=' + value.id + '>' + value.name + '</option>';
+                                }
+                            });
+
                             $('#edit_category_id').empty();
                             $('#edit_category_id').append(data_append);
                             $('#edit_category_id').trigger('change');
+
+                            $('#edit_salon_id').empty();
+                            $('#edit_salon_id').append(data_append_2);
+                            $('#edit_salon_id').trigger('change');
                         }
                     });
                 }
@@ -607,6 +660,8 @@
 
                 $('#edit_category_id').val(button.data('category_id'));
                 $('#edit_category_id').trigger('change');
+                $('#edit_service_type').val(button.data('service_type'));
+                $('#edit_service_type').trigger('change');
 
                 $('#edit_price').val(button.data('price'));
                 $('#edit_discount_price').val(button.data('discount_price'));

@@ -105,9 +105,9 @@
                             <tr>
                                 <td>{{ $transfer->id }}</td>
                                 <td>{{ $transfer->id }}</td>
-                                <td>{{ @$transfer->salon->name == null ? '-' : $transfer->salon->name }}</td>
-                                <td>{{ @$transfer->artist->name == null ? '-' : $transfer->artist->name }}</td>
-                                <td>{{ @$transfer->artist->mobile == null ? $transfer->salon->mobile : $transfer->artist->mobile }}</td>
+                                <td>{{ @$transfer->salon->name == null ? '-' : @$transfer->salon->name }}</td>
+                                <td>{{ @$transfer->artist->name == null ? '-' : @$transfer->artist->name }}</td>
+                                <td>{{ @$transfer->artist->mobile == null ? @$transfer->salon->mobile : @$transfer->artist->mobile }}</td>
                                 <td>{{ $transfer->amount }} @lang('common.rq')</td>
                                 <td><img class="image_view" src="{{ $transfer->image }}" style="width: 150px"></td>
                                 <td id="span_text_{{ $transfer->id }}">
@@ -175,7 +175,7 @@
                 },
             ],
             // dom: 'lrtip',
-            "order": [[1, 'asc']],
+            // "order": [[1, 'asc']],
         });
 
 

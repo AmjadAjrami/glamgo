@@ -58,6 +58,7 @@ class OfferController extends Controller
             'category_id' => 'required',
             'price' => 'required',
             'discount_price' => 'required',
+            'service_type' => 'required',
         ];
 
         foreach (locales() as $key => $value) {
@@ -73,6 +74,7 @@ class OfferController extends Controller
         $data['category_id'] = $request->category_id;
         $data['price'] = $request->price;
         $data['discount_price'] = $request->discount_price;
+        $data['service_type'] = $request->service_type;
 
         if ($request->image) {
             $filename = rand(111111, 999999) . '_' . \Carbon\Carbon::now()->timestamp;
@@ -112,8 +114,10 @@ class OfferController extends Controller
      */
     public function categories($type)
     {
+        $type = $type == 3 ? 2 : $type;
         $categories = Category::query()->where('status', 1)->where('type', $type)->get();
-        return ['categories' => $categories];
+        $salons = Salon::query()->where('type', $type)->get();
+        return ['categories' => $categories, 'salons' => $salons];
     }
 
     /**
@@ -145,6 +149,7 @@ class OfferController extends Controller
             'category_id' => 'required',
             'price' => 'required',
             'discount_price' => 'required',
+            'service_type' => 'required',
         ];
 
         foreach (locales() as $key => $value) {
@@ -155,7 +160,7 @@ class OfferController extends Controller
         $this->validate($request, $rules);
 
         $data = [];
-        if ($request->offer_for == 1) {
+        if ($request->offer_for == 1 || $request->offer_for == 3) {
             $data['salon_id'] = $request->salon_id;
             $data['makeup_artist_id'] = null;
         } else {
@@ -165,6 +170,7 @@ class OfferController extends Controller
         $data['category_id'] = $request->category_id;
         $data['price'] = $request->price;
         $data['discount_price'] = $request->discount_price;
+        $data['service_type'] = $request->service_type;
 
         if ($request->image) {
             $filename = rand(111111, 999999) . '_' . \Carbon\Carbon::now()->timestamp;
@@ -264,9 +270,11 @@ class OfferController extends Controller
             $data_attr .= 'data-image="' . $offer->image . '" ';
             $data_attr .= 'data-category_id="' . $offer->category_id . '" ';
             $data_attr .= 'data-salon_id="' . $offer->salon_id . '" ';
+            $data_attr .= 'data-salon_type="' . @$offer->salon->type . '" ';
             $data_attr .= 'data-makeup_artist_id="' . $offer->makeup_artist_id . '" ';
             $data_attr .= 'data-price="' . $offer->price . '" ';
             $data_attr .= 'data-discount_price="' . $offer->discount_price . '" ';
+            $data_attr .= 'data-service_type="' . $offer->service_type . '" ';
 
             $string = '';
 

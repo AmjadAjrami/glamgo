@@ -223,16 +223,29 @@
                                    for="end_date">{{ __('common.salon_images') }}</label>
                             <div class="input-images_2"></div>
                         </div>
+                        <label class="form-label"
+                               for="address">{{ __('common.address') }}</label>
+                        <div class="col-12">
+                            <input id="address" name="address_text" class="form-control  mb-2" readonly placeholder="Address" value="{{ $salon->address_text }}">
+                        </div>
+                        <div class="col-5">
+                            <input id="search_address_lat" class="form-control mb-2" placeholder="Lat">
+                        </div>
+                        <div class="col-5">
+                            <input id="search_address_lng" class="form-control mb-2" placeholder="Long">
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-info" type="button" id="search_location" style=";margin-right: -15px">@lang('common.search')</button>
+                        </div>
                         <div class="col-12">
                             <label class="form-label"
                                    for="address">{{ __('common.address') }}</label>
-                            <input id="edit_address" name="address" class="form-control  mb-2" value="{{ $salon->address_text }}">
-                            <div class="map" id="edit_map" style="width: 100%; height: 300px"></div>
+                            <div class="map" id="map" style="width: 100%; height: 300px"></div>
                             <div class="form-group">
                                 <div class="col-md-6">
                                     <input type="hidden" class="form-control" name="lat"
                                            value="{{ $salon->lat }}"
-                                           id="edit_lat" placeholder=" {{__('common.lat')}}" required>
+                                           id="lat" placeholder=" {{__('common.lat')}}" required>
                                     @if($errors->has('lat'))
                                         <p class="error">
                                             <small>{{ $errors->first('lat') }}</small>
@@ -240,7 +253,7 @@
                                     @endif
                                     <input type="hidden" class="form-control" name="lng"
                                            value="{{ $salon->lng }}"
-                                           id="edit_lng" placeholder=" {{__('common.lng')}}" required>
+                                           id="lng" placeholder=" {{__('common.lng')}}" required>
                                     @if($errors->has('lng'))
                                         <p class="error">
                                             <small>{{ $errors->first('lng') }}</small>
@@ -288,30 +301,28 @@
         });
 
         function initMap(lat, lng) {
-            address_map_2();
+            address_map();
         }
 
-        function address_map_2() {
-            var input = document.getElementById('edit_address');
-            var lat = parseFloat(document.getElementById('edit_lat').value);
-            var lng = parseFloat(document.getElementById('edit_lng').value);
-            var autocomplete = new google.maps.places.Autocomplete(input);
+        function address_map() {
             var geocoder = new google.maps.Geocoder;
-            var infowindow = new google.maps.InfoWindow;
-            var uluru = {lat: lat || 24.7253981, lng: lng || 46.2620201};
-            var map = new google.maps.Map(document.getElementById('edit_map'), {
-                zoom: 5,
+            const infowindow = new google.maps.InfoWindow();
+            var input = document.getElementById('address');
+            var lat = parseFloat(document.getElementById('lat').value);
+            var lng = parseFloat(document.getElementById('lng').value);
+            var uluru = {lat: lat || 25.3548, lng: lng || 51.1839};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 9,
                 center: uluru
+            });
+            const autocomplete = new google.maps.places.Autocomplete(input, {
+                fields: ["place_id", "geometry", "formatted_address", "name"],
             });
             autocomplete.bindTo('bounds', map);
 
-            // Set the data fields to return when the user selects a place.
-            autocomplete.setFields(
-                ['address_components', 'geometry', 'icon', 'name']);
-
             autocomplete.addListener('place_changed', function () {
                 infowindow.close();
-                marker.setVisible(false);
+                marker_2.setVisible(false);
                 var place = autocomplete.getPlace();
                 if (!place.geometry) {
                     // User entered the name of a Place that was not suggested and
@@ -326,62 +337,86 @@
                     map.setCenter(place.geometry.location);
                     map.setZoom(17);  // Why 17? Because it looks good.
                 }
-                marker.setPosition(place.geometry.location);
-                marker.setVisible(true);
-                document.getElementById('edit_lat').value = place.geometry.location.lat();
-                document.getElementById('edit_lng').value = place.geometry.location.lng();
+                marker_2.setPosition(place.geometry.location);
+                marker_2.setVisible(true);
+                document.getElementById('lat').value = place.geometry.location.lat();
+                document.getElementById('lng').value = place.geometry.location.lng();
             });
 
             if (isNaN(lat) && isNaN(lng)) {
-                marker = new google.maps.Marker({
+                marker_2 = new google.maps.Marker({
                     map: map,
                 });
             } else {
-                marker = new google.maps.Marker({
+                marker_2 = new google.maps.Marker({
                     position: uluru,
                     map: map,
                 });
             }
+
             google.maps.event.addListener(map, "click", function (event) {
                 placeMarker(event.latLng);
-                getAddress(event.latLng);
+                getAddress(event.latLng, map, infowindow, geocoder, marker_2);
             });
 
             function placeMarker(location) {
-                if (marker === null) {
-                    marker = new google.maps.Marker({
+                if (marker_2 === null) {
+                    marker_2 = new google.maps.Marker({
                         position: location,
                         map: map,
                     });
                 } else {
-                    marker.setPosition(location);
+                    marker_2.setPosition(location);
                 }
                 var latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
 
-                $('#edit_lat').val(latlng.lat);
-                $('#edit_lng').val(latlng.lng);
+                $('#lat').val(latlng.lat);
+                $('#lng').val(latlng.lng);
                 $('#latlngs').change();
 
-                getAddress(location);
+                getAddress(location, map, infowindow, geocoder, marker_2);
             }
 
-            function getAddress(latLng) {
-                geocoder.geocode({'latLng': latLng},
-                    function (results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            if (results[0]) {
-                                console.log(results[0].formatted_address);
-                                document.getElementById("edit_address").value = results[0].formatted_address;
-                            } else {
-                                document.getElementById("edit_address").value = "No results";
-                            }
-                        } else {
-                            document.getElementById("edit_address").value = status;
-                        }
-                    }
-                );
-            }
+            document.getElementById("search_location").addEventListener("click", () => {
+                geocodeLatLng(geocoder, map, infowindow, marker_2);
+            });
         }
+
+        function geocodeLatLng(geocoder, map, infowindow, marker) {
+            const lat = document.getElementById("search_address_lat").value;
+            const lng = document.getElementById("search_address_lng").value;
+            const latlng = {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+            };
+
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+
+            getAddress(latlng, map, infowindow, geocoder, marker);
+        }
+
+        function getAddress(latlng, map, infowindow, geocoder, marker) {
+            geocoder.geocode({'latLng': latlng},
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        if (results[0]) {
+                            document.getElementById("address").value = results[0].formatted_address;
+
+                            marker.setPosition(latlng);
+
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        } else {
+                            document.getElementById("address").value = "No results";
+                        }
+                    } else {
+                        document.getElementById("address").value = status;
+                    }
+                }
+            );
+        }
+
     </script>
 
     <script

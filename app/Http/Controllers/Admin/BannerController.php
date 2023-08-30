@@ -89,7 +89,7 @@ class BannerController extends Controller
         } else {
             $data['type'] = $request->type;
         }
-        $data['banner_type'] = $request->banner_type;
+        $data['banner_type'] = $request->banner_type ?? 0;
         $data['start_date'] = $request->start_date;
         $data['end_date'] = $request->end_date;
         $data['link'] = $request->link ?? null;
@@ -184,7 +184,7 @@ class BannerController extends Controller
         } else {
             $data['type'] = $request->type;
         }
-        $data['banner_type'] = $request->banner_type;
+        $data['banner_type'] = $request->banner_type ?? 0;
         $data['start_date'] = $request->start_date;
         $data['end_date'] = $request->end_date;
         $data['link'] = $request->link ?? null;
