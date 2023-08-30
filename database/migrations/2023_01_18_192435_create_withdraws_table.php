@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('withdraws', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Salon::class)->nullable()->constrained();
-            $table->foreignIdFor(\App\Models\MakeupArtist::class)->nullable()->constrained();
-            $table->double('amount');
-            $table->string('image')->nullable();
-            $table->boolean('status')->default(0);
-            $table->boolean('type')->default(1);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('withdraws')) {
+            Schema::create('withdraws', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\Salon::class)->nullable()->constrained();
+                $table->foreignIdFor(\App\Models\MakeupArtist::class)->nullable()->constrained();
+                $table->double('amount');
+                $table->string('image')->nullable();
+                $table->boolean('status')->default(0);
+                $table->boolean('type')->default(1);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -183,7 +183,7 @@
                     </ul>
                 </li>
             @endif
-            @if(auth('admin')->user()->hasAnyPermission(['show_banner']) || auth('admin')->user()->hasAnyPermission(['show_category']) || auth('admin')->user()->hasAnyPermission(['show_salon']) || auth('admin')->user()->hasAnyPermission(['show_artist']))
+            @if(auth('admin')->user()->hasAnyPermission(['show_banner']) || auth('admin')->user()->hasAnyPermission(['show_category']) || auth('admin')->user()->hasAnyPermission(['show_salon']) || auth('admin')->user()->hasAnyPermission(['show_artist']) || auth('admin')->user()->hasAnyPermission(['show_home_service']))
                 <li class="nav-item {{ request()->type == 2 ? 'open' : '' }}">
                     <a class="d-flex align-items-center" href="#">
                         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="512" height="512" x="0" y="0"
@@ -256,6 +256,14 @@
                                    href="{{ url(app()->getLocale() . '/tmg/artists?type=2') }}"><i
                                         data-feather="circle"></i><span class="menu-item text-truncate"
                                                                         data-i18n="List">@lang('common.artists')</span></a>
+                            </li>
+                        @endif
+                        @if(auth('admin')->user()->hasAnyPermission(['show_home_service']))
+                            <li class="nav-item {{ request()->type == 2 && strtok(\Illuminate\Support\Facades\Route::currentRouteName(),'.') == 'home_services' ? 'active' : '' }}">
+                                <a class="d-flex align-items-center"
+                                   href="{{ url(app()->getLocale() . '/tmg/home_services?type=2') }}"><i
+                                        data-feather="circle"></i><span class="menu-item text-truncate"
+                                                                        data-i18n="List">@lang('common.home_services')</span></a>
                             </li>
                         @endif
                     </ul>

@@ -102,7 +102,7 @@ class AdminController extends Controller
         $permissions = Permission::all();
         $permission_groups = [];
 
-        for ($i = 1; $i < 24; $i++) {
+        for ($i = 1; $i < 25; $i++) {
             $permission_groups[$i - 1]['name'] = Permission::groupName($i);
             $permissions_group = [];
             foreach (Permission::query()->where('type', $i)->get() as $k => $permission) {

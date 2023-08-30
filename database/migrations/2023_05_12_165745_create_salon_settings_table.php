@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('salon_settings', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Salon::class)->nullable()->constrained()->onDelete('cascade');
-            $table->foreignIdFor(\App\Models\MakeupArtist::class)->nullable()->constrained()->onDelete('cascade');
-            $table->string('key');
-            $table->string('value');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('salon_settings')) {
+            Schema::create('salon_settings', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\Salon::class)->nullable()->constrained()->onDelete('cascade');
+                $table->foreignIdFor(\App\Models\MakeupArtist::class)->nullable()->constrained()->onDelete('cascade');
+                $table->string('key');
+                $table->string('value');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

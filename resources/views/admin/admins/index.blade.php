@@ -176,7 +176,7 @@
                         </div>
                         <div class="col-12 col-md-12">
                             <label class="form-label" for="permissions">@lang('common.permissions')</label>
-                            @for($i = 1; $i < 24; $i++)
+                            @for($i = 1; $i < 25; $i++)
                                 @php
                                     $permissions_group = \Spatie\Permission\Models\Permission::query()->where('type', $i)->get()
                                 @endphp

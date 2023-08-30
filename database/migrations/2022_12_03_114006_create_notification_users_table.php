@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('notification_users', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Notification::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(\App\Models\User::class)->constrained()->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('notification_users')) {
+            Schema::create('notification_users', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\Notification::class)->constrained()->onDelete('cascade');
+                $table->foreignIdFor(\App\Models\User::class)->constrained()->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

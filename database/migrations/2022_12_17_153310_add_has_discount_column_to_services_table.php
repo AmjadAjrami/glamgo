@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->boolean('has_discount')->default(0);
-        });
+        if (!Schema::hasTable('services')) {
+            Schema::table('services', function (Blueprint $table) {
+                $table->boolean('has_discount')->default(0);
+            });
+        }
     }
 
     /**

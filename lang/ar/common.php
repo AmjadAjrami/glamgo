@@ -469,6 +469,12 @@ return [
     'show_artist' => 'عرض الميك أب أرتست',
     'edit_artist_status' => 'تعديل حالة الميك أب أرتست',
 
+    'add_home_service' => 'إضافة خدمة منزلية',
+    'edit_home_service' => 'تعديل الخدمة منزلية',
+    'delete_home_service' => 'حذف الخدمة منزلية',
+    'show_home_service' => 'عرض الخدمة منزلية',
+    'edit_home_service_status' => 'تعديل حالة الخدمة منزلية',
+
     'add_product' => 'إضافة منتج',
     'edit_product' => 'تعديل المنتج',
     'delete_product' => 'حذف المنتج',
@@ -589,6 +595,7 @@ return [
     'artists' => 'ميك أب أرتست',
     'artist' => 'ميك أب أرتست',
     'artist_images' => 'صور الميك أب أرتست',
+    'home_service_images' => 'صور الخدمات المنزلية',
     'salon_info' => 'بيانات الصالون',
     'service_types' => 'أنواع الخدمات',
     'service_type' => 'نوع خدمة',
@@ -663,4 +670,6 @@ return [
     'app_cash_percentage' => 'نسبة التطبيق المستحقة من الكاش',
     'you_cant_transfer_amount_more_than_that_user_have' => 'لا يمكنك تحويل مبلغ أكبر من الذي لدى المستخدم',
     'rq' => 'ر.ق',
+    'home_services' => 'الخدمات المنزلية',
+    'home_service' => 'خدمة منزلية'
 ];

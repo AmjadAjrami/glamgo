@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/clear_cache', function () {
+//    \Illuminate\Support\Facades\Artisan::call('migrate');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
@@ -205,6 +206,26 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),
             Route::group(['middleware' => ['permission:edit_artist_status']], function () {
                 Route::put('/artists/update_status/{id}', 'update_status');
                 Route::put('/artists/update_all_status', 'update_all_status');
+            });
+        });
+
+        Route::controller(\App\Http\Controllers\Admin\HomeServiceController::class)->group(function () {
+            Route::group(['middleware' => ['permission:show_home_service']], function () {
+                Route::get('/home_services', 'index')->name('home_services.index');
+                Route::get('/home_services/{type}/indexTable', 'indexTable');
+            });
+            Route::group(['middleware' => ['permission:add_home_service']], function () {
+                Route::post('/home_services', 'store')->name('home_services.store');
+            });
+            Route::group(['middleware' => ['permission:edit_home_service']], function () {
+                Route::put('/home_services/{id}/update', 'update');
+            });
+            Route::group(['middleware' => ['permission:delete_home_service']], function () {
+                Route::delete('/home_services/{id}/destroy', 'destroy');
+            });
+            Route::group(['middleware' => ['permission:edit_home_service_status']], function () {
+                Route::put('/home_services/update_status/{id}', 'update_status');
+                Route::put('/home_services/update_all_status', 'update_all_status');
             });
         });
 
@@ -735,6 +756,12 @@ Route::get('/d', function () {
         ['name' => 'edit_notification_status', 'guard_name' => 'admin', 'type' => 22],
 
         ['name' => 'financial_accounts', 'guard_name' => 'admin', 'type' => 23],
+
+        ['name' => 'add_home_service', 'guard_name' => 'admin', 'type' => 24],
+        ['name' => 'edit_home_service', 'guard_name' => 'admin', 'type' => 24],
+        ['name' => 'delete_home_service', 'guard_name' => 'admin', 'type' => 24],
+        ['name' => 'show_home_service', 'guard_name' => 'admin', 'type' => 24],
+        ['name' => 'edit_home_service_status', 'guard_name' => 'admin', 'type' => 24],
     ]);
 
     $admin = \App\Models\Admin::query()->findOrFail(1);
@@ -848,6 +875,12 @@ Route::get('/d', function () {
         'show_notification',
         'edit_notification_status',
 
-        'financial_accounts'
+        'financial_accounts',
+
+        'add_home_service',
+        'edit_home_service',
+        'delete_home_service',
+        'show_home_service',
+        'edit_home_service_status',
     ]);
 });

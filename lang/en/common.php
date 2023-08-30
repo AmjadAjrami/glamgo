@@ -555,6 +555,12 @@ return [
     'show_artist' => 'Show Makeup Artists',
     'edit_artist_status' => 'Edit Makeup Artists',
 
+    'add_home_service' => 'Add Home Service',
+    'edit_home_service' => 'Edit Home Service',
+    'delete_home_service' => 'Delete Home Service',
+    'show_home_service' => 'Show Home Service',
+    'edit_home_service_status' => 'Edit Home Service',
+
     'add_product' => 'Add Product',
     'edit_product' => 'Edit Product',
     'delete_product' => 'Delete Product',
@@ -807,4 +813,7 @@ return [
     'not_canceled' => 'Not Canceled',
     'booking_times_in_salon' => 'Booking Times In Salon',
     'booking_times_out_salon' => 'Booking Times Out Salon',
+    'home_services' => 'Home Services',
+    'home_service' => 'Home Service',
+    'home_service_images' => 'Home Service Images',
 ];

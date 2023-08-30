@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('order_statuses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Order::class)->constrained()->onDelete('cascade');
-            $table->integer('status');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('order_statuses')){
+            Schema::create('order_statuses', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\Order::class)->constrained()->onDelete('cascade');
+                $table->integer('status');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

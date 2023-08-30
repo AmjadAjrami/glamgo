@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('banner_translations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\Banner::class)->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->string('locale');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('banner_translations')) {
+            Schema::create('banner_translations', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\Banner::class)->constrained()->onDelete('cascade');
+                $table->string('title');
+                $table->string('locale');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

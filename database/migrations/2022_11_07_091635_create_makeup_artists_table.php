@@ -16,11 +16,17 @@ return new class extends Migration
         Schema::create('makeup_artists', function (Blueprint $table) {
             $table->id();
             $table->string('image');
+            $table->string('cover_image')->nullable();
             $table->boolean('status')->default(1);
             $table->string('email')->unique();
             $table->string('mobile')->unique();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account_name')->nullable();
+            $table->string('bank_account_number')->nullable();
+            $table->string('iban')->nullable();
             $table->string('password');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

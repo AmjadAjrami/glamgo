@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignIdFor(\App\Models\User::class)->constrained();
-            $table->foreignIdFor(\App\Models\PaymentMethod::class)->constrained();
-            $table->integer('type');
-            $table->double('price');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('transactions')) {
+            Schema::create('transactions', function (Blueprint $table) {
+                $table->id();
+                $table->foreignIdFor(\App\Models\User::class)->constrained();
+                $table->foreignIdFor(\App\Models\PaymentMethod::class)->constrained();
+                $table->integer('type');
+                $table->double('price');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

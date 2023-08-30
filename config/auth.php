@@ -55,6 +55,11 @@ return [
             'driver' => 'session',
             'provider' => 'artists',
         ],
+
+        'home_service' => [
+            'driver' => 'session',
+            'provider' => 'home_services',
+        ],
     ],
 
     /*
@@ -93,6 +98,11 @@ return [
         'artists' => [
             'driver' => 'eloquent',
             'model' => App\Models\MakeupArtist::class,
+        ],
+
+        'home_services' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\HomeService::class,
         ],
 
         // 'users' => [
@@ -140,6 +150,13 @@ return [
 
         'artists' => [
             'provider' => 'artists',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'home_services' => [
+            'provider' => 'home_services',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,

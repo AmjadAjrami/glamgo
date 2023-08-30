@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->string('image');
-            $table->integer('type');
-            $table->string('send_date');
-            $table->boolean('is_seen')->default(0);
-            $table->unsignedBigInteger('reference_id')->nullable();
-            $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('notifications')) {
+            Schema::create('notifications', function (Blueprint $table) {
+                $table->id();
+                $table->string('image');
+                $table->integer('type');
+                $table->string('send_date');
+                $table->boolean('is_seen')->default(0);
+                $table->unsignedBigInteger('reference_id')->nullable();
+                $table->foreignIdFor(\App\Models\User::class)->nullable()->constrained();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
