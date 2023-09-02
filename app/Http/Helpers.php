@@ -223,8 +223,10 @@ function fcmNotification($token, $id, $title, $content, $body, $type, $device, $
         ];
     }
 
+    $firebase_key = \App\Models\Setting::query()->where('key', 'firebase_key')->first()->value;
+
     $headers = [
-        'Authorization: key=' . 'AAAAO98-AwA:APA91bE94CDdPfWVpDj61kQVJS3lptRe4zUOWdQOq8O6jaS_auHe-1fJzF-c_Bk0tdlbqXg45Wn8XCsDGcnmIG72TPnrGvKev04LW7SEgKXqRBYVrMHGMxukM3nztR2fB7fcR5KjsEFX',
+        'Authorization: key=' . $firebase_key,
         'Content-Type: application/json'
     ];
 
@@ -248,10 +250,14 @@ function sendMessage($mobile, $message)
         'MIME-Type:application/x-www-form-urlencoded',
     ];
 
+    $sms_sender_name = \App\Models\Setting::query()->where('key', 'sms_sender_name')->first()->value;
+    $sms_id = \App\Models\Setting::query()->where('key', 'sms_id')->first()->value;
+    $sms_token = \App\Models\Setting::query()->where('key', 'sms_token')->first()->value;
+
     $fields = [
         'to' => $mobile,
         'message' => $message,
-        'sender' => 'GlamGo',
+        'sender' => $sms_sender_name,
     ];
 
     $ch = curl_init();
@@ -262,7 +268,7 @@ function sendMessage($mobile, $message)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-    curl_setopt($ch, CURLOPT_USERPWD, 'crgOKnnCB0YolPsyQOPT' . ':' . 'Lfg0GhelIrZh4Dxa1WQw');
+    curl_setopt($ch, CURLOPT_USERPWD, $sms_id . ':' . $sms_token);
     $result = curl_exec($ch);
 
     curl_close($ch);
@@ -366,10 +372,14 @@ function FileSizeConvert($bytes)
 
 function generate_token()
 {
+    $sadadId = \App\Models\Setting::query()->where('key', 'sadadId')->first()->value;
+    $secretKey = \App\Models\Setting::query()->where('key', 'secretKey')->first()->value;
+    $domain = \App\Models\Setting::query()->where('key', 'domain')->first()->value;
+
     $data = [
-        'sadadId' => '3163340',
-        'secretKey' => 'h9wjy5UQMKgSfuhb',
-        'domain' => 'web.qlamsa.com',
+        'sadadId' => $sadadId,
+        'secretKey' => $secretKey,
+        'domain' => $domain,
         'type' => 'sandbox',
     ];
 
