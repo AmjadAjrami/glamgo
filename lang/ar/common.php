@@ -671,5 +671,6 @@ return [
     'you_cant_transfer_amount_more_than_that_user_have' => 'لا يمكنك تحويل مبلغ أكبر من الذي لدى المستخدم',
     'rq' => 'ر.ق',
     'home_services' => 'الخدمات المنزلية',
-    'home_service' => 'خدمة منزلية'
+    'home_service' => 'خدمة منزلية',
+    'home_service_info' => 'بيانات الخدمة منزلية',
 ];

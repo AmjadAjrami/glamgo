@@ -18,7 +18,7 @@ class HomeService extends Authenticatable
     protected $translatedAttributes = ['name', 'bio'];
     protected $appends = ['add_time', 'video', 'thumbnail', /*'distance', 'distance_int', */'categories', 'is_favorite', 'type', 'service_types'];
     protected $hidden = ['created_at', 'updated_at', 'deleted_at', 'status', 'translations', 'gallery', 'password',
-        'home_services_categories', 'favorite', '\service_types', 'services'];
+        'home_services_categories', 'favorite', 'services', 'home_service_categories'];
 
     public function getImageAttribute($value)
     {

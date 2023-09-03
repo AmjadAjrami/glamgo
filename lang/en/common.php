@@ -816,4 +816,5 @@ return [
     'home_services' => 'Home Services',
     'home_service' => 'Home Service',
     'home_service_images' => 'Home Service Images',
+    'home_service_info' => 'Home Service Info',
 ];

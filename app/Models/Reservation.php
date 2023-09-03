@@ -15,6 +15,7 @@ class Reservation extends Model
     protected $casts = [
         'salon_id' => 'integer',
         'makeup_artist_id' => 'integer',
+        'home_service_id' => 'integer',
     ];
     protected $hidden = ['salon', 'artist', 'time', 'items', 'user', 'payment_method'];
     protected $appends = ['provider_type', 'provider_id', 'provider_name', 'provider_image', 'provider_categories', 'reservation_provider_type',
@@ -67,6 +68,11 @@ class Reservation extends Model
         return $this->belongsTo(MakeupArtist::class, 'makeup_artist_id');
     }
 
+    public function home_service()
+    {
+        return $this->belongsTo(HomeService::class, 'home_service_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -76,8 +82,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return 'salon';
-        }else{
+        }elseif($this->artist_id != null){
             return 'artist';
+        }elseif($this->home_service_id != null){
+            return 'home_service';
         }
     }
 
@@ -85,8 +93,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return $this->salon_id;
-        }else{
+        }elseif($this->artist_id != null){
             return $this->makeup_artist_id;
+        }elseif($this->home_service_id != null){
+            return $this->home_service_id;
         }
     }
 
@@ -94,8 +104,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return __('common.salon');
-        }else{
+        }elseif($this->artist_id != null){
             return __('common.artist');
+        }elseif($this->home_service_id != null){
+            return __('common.home_service');
         }
     }
 
@@ -103,8 +115,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return @$this->salon->name;
-        }else{
+        }elseif($this->artist_id != null){
             return @$this->artist->name;
+        }elseif($this->home_service_id != null){
+            return @$this->home_service->name;
         }
     }
 
@@ -112,8 +126,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return @$this->salon->image;
-        }else{
+        }elseif($this->artist_id != null){
             return @$this->artist->image;
+        }elseif($this->home_service_id != null){
+            return @$this->home_service->image;
         }
     }
 
@@ -121,8 +137,10 @@ class Reservation extends Model
     {
         if ($this->salon_id != null){
             return @$this->salon->categories;
-        }else{
+        }elseif($this->artist_id != null){
             return @$this->artist->categories;
+        }elseif($this->home_service_id != null){
+            return @$this->home_service->categories;
         }
     }
 

@@ -13,6 +13,8 @@ use App\Models\City;
 use App\Models\ContactUs;
 use App\Models\Country;
 use App\Models\Favorite;
+use App\Models\HomeService;
+use App\Models\HomeServiceTranslation;
 use App\Models\Intro;
 use App\Models\MakeupArtist;
 use App\Models\MakeupArtistTranslation;
@@ -181,6 +183,8 @@ class HomeController extends Controller
 
         $salons = Salon::query()->where('status', 1)->where('type', $request->type)->orderByDesc('created_at')->get()->makeHidden(['in_salon_service_types', 'home_service_types'])->take(4);
         $artists = MakeupArtist::query()->where('status', 1)->get()->makeHidden(['in_salon_service_types', 'home_service_types'])->take(4);
+        $home_services = HomeService::query()->where('status', 1)->get()->take(4);
+
         if ($request->type == 2) {
             $offers = Offer::query()->where('status', 1)->whereHas('salon', function ($q){
                 $q->where('deleted_at', null);
@@ -262,6 +266,16 @@ class HomeController extends Controller
                     'title' => __('common.artists'),
                     'position' => 6,
                     'items' => $artists,
+                ];
+            }
+            if (count($home_services) > 0) {
+                $data[] = [
+                    'id' => 8,
+                    'type' => 'home_services',
+                    'section_type' => 'home_service',
+                    'title' => __('common.home_services'),
+                    'position' => 8,
+                    'items' => $home_services,
                 ];
             }
         }
@@ -519,7 +533,7 @@ class HomeController extends Controller
     public function artist_details(Request $request)
     {
         $rules = [
-            'artist_id' => 'required|exists:makeup_artists,id',
+            'artist_id' => 'required|exists:makeup_artists,id,deleted_at,NULL',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -530,6 +544,59 @@ class HomeController extends Controller
         $artist = MakeupArtist::query()->find($request->artist_id)->makeVisible(['gallery']);
 
         return mainResponse(true, __('ok'), $artist, [], 200);
+    }
+
+    public function home_services(Request $request)
+    {
+        $rules = [
+            'id' => 'nullable',
+            'category_id' => 'nullable|array',
+            'name' => 'nullable',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), (object)[], $validator->errors()->messages(), 200);
+        }
+
+        $home_services = HomeService::query()->where('status', 1);
+
+        if ($request->name) {
+            $home_services_ids = HomeServiceTranslation::query()->where('name', 'like', '%' . $request->name . '%')->pluck('home_service_id');
+            $home_services = $home_services->whereIn('id', $home_services_ids);
+        }
+
+        if ($request->category_id) {
+            if ($request->category_id[0] != 0) {
+                $home_services = $home_services->whereHas('home_service_categories', function ($q) use ($request) {
+                    $q->whereIn('category_id', $request->category_id);
+                });
+            }
+        }
+
+        $home_services = $home_services->get();
+
+        return mainResponse(true, __('ok'), $home_services, [], 200);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function home_service_details(Request $request)
+    {
+        $rules = [
+            'home_service_id' => 'required|exists:home_services,id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return mainResponse(false, $validator->errors()->first(), (object)[], $validator->errors()->messages(), 200);
+        }
+
+        $home_service = HomeService::query()->find($request->home_service_id)->makeVisible(['gallery']);
+
+        return mainResponse(true, __('ok'), $home_service, [], 200);
     }
 
     /**
@@ -766,6 +833,7 @@ class HomeController extends Controller
             'day_id' => 'required',
             'salon_id' => 'nullable|exists:salons,id',
             'artist_id' => 'nullable|exists:makeup_artists,id',
+            'home_service_id' => 'nullable|exists:home_services,id',
             'date' => 'required',
             'service_type' => 'required|in:1,2',
         ];
@@ -778,8 +846,11 @@ class HomeController extends Controller
         if ($request->salon_id) {
             $booking_times = BookingTime::query()->where('salon_id', $request->salon_id)
                 ->where('day', $request->day_id)->where('type', $request->service_type)->where('status', 1)->get();
-        } else {
+        } elseif($request->artist_id) {
             $booking_times = BookingTime::query()->where('makeup_artist_id', $request->artist_id)
+                ->where('day', $request->day_id)->where('type', $request->service_type)->where('status', 1)->get();
+        } elseif($request->home_service_id) {
+            $booking_times = BookingTime::query()->where('home_service_id', $request->home_service_id)
                 ->where('day', $request->day_id)->where('type', $request->service_type)->where('status', 1)->get();
         }
 
@@ -840,6 +911,7 @@ class HomeController extends Controller
         $rules = [
             'salon_id' => 'nullable|exists:salons,id',
             'makeup_artist_id' => 'nullable|exists:makeup_artists,id',
+            'home_service_id' => 'nullable|exists:home_services,id',
             'services' => 'required|array',
             'services_category' => 'required|array',
             'quantities' => 'required|array',
@@ -859,6 +931,7 @@ class HomeController extends Controller
         $data['user_id'] = auth('sanctum')->id();
         $data['salon_id'] = $request->salon_id ?? null;
         $data['makeup_artist_id'] = $request->makeup_artist_id ?? null;
+        $data['home_service_id'] = $request->home_service_id ?? null;
         $data['status'] = 0;
 
         $reservation = Reservation::query()->create($data);
@@ -928,6 +1001,7 @@ class HomeController extends Controller
             'reservation_id' => $reservation->id,
             'salon_id' => $reservation->salon_id,
             'makeup_artist_id' => $reservation->makeup_artist_id,
+            'home_service_id' => $reservation->home_service_id,
             'offer_id' => $reservation->offer_id,
             'items_count' => count($reservation->items),
             'total_price' => $total_price,
@@ -1069,6 +1143,7 @@ class HomeController extends Controller
             'reservation_id' => $reservation->id,
             'salon_id' => $reservation->salon_id,
             'makeup_artist_id' => $reservation->makeup_artist_id,
+            'home_service_id' => $reservation->home_service_id,
             'offer_id' => $reservation->offer_id,
             'provider_name' => $reservation->provider_name,
             'provider_image' => $reservation->provider_image,

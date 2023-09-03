@@ -570,7 +570,7 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),
         Route::get('get_notifications', [\App\Http\Controllers\Artist\HomeController::class, 'get_notifications']);
         Route::get('read_notifications', [\App\Http\Controllers\Artist\HomeController::class, 'read_notifications']);
 
-        Route::controller(\App\Http\Controllers\Artist\ArtistInfoController::class)->group(function () {
+        Route::controller(\App\Http\Controllers\Artist\HomeServiceInfoController::class)->group(function () {
             Route::get('/info', 'index')->name('artist_info.index');
             Route::put('/update', 'update')->name('artist_info.update');
         });
@@ -636,6 +636,89 @@ Route::group(['prefix' => LaravelLocalization::setLocale(),
             Route::get('/financial_accounts', 'index')->name('artist_financial_accounts.index');
             Route::get('/financial_accounts/update_status', 'update_status')->name('artist_financial_accounts.update_status');
             Route::post('/financial_accounts/make_withdraw', 'make_withdraw')->name('artist_financial_accounts.make_withdraw');
+        });
+    });
+});
+
+/////////////////////// HomeService Routes
+Route::group(['prefix' => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']], function () {
+    Route::group(['prefix' => 'h-service'], function () {
+        Route::get('/', [\App\Http\Controllers\HomeService\Auth\LoginController::class, 'showLoginForm'])->name('home_service.showLoginForm');
+        Route::get('/login', [\App\Http\Controllers\HomeService\Auth\LoginController::class, 'showLoginForm'])->name('home_service.showLoginForm');
+        Route::post('/login', [\App\Http\Controllers\HomeService\Auth\LoginController::class, 'login'])->name('home_service.login');
+        Route::get('logout', [\App\Http\Controllers\HomeService\Auth\LoginController::class, 'logout'])->name('home_service.logout');
+
+        Route::get('/dashboard', [\App\Http\Controllers\HomeService\HomeController::class, 'index'])->name('home_service.dashboard');
+        Route::get('get_notifications', [\App\Http\Controllers\HomeService\HomeController::class, 'get_notifications']);
+        Route::get('read_notifications', [\App\Http\Controllers\HomeService\HomeController::class, 'read_notifications']);
+
+        Route::controller(\App\Http\Controllers\HomeService\HomeServiceInfoController::class)->group(function () {
+            Route::get('/info', 'index')->name('home_service_info.index');
+            Route::put('/update', 'update')->name('home_service_info.update');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\ServiceTypeController::class)->group(function () {
+            Route::get('/home_service_service_types', 'index')->name('home_service_service_types.index');
+            Route::get('/home_service_service_types/indexTable', 'indexTable');
+            Route::post('/home_service_service_types', 'store')->name('home_service_service_types.store');
+            Route::put('/home_service_service_types/{id}/update', 'update');
+            Route::delete('/home_service_service_types/{id}/destroy', 'destroy');
+            Route::put('/home_service_service_types/update_status/{id}', 'update_status');
+            Route::put('/home_service_service_types/update_all_status', 'update_all_status');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\ServiceController::class)->group(function () {
+            Route::get('/home_service_services', 'index')->name('home_service_services.index');
+            Route::get('/home_service_services/indexTable', 'indexTable');
+            Route::post('/home_service_services', 'store')->name('home_service_services.store');
+            Route::put('/home_service_services/{id}/update', 'update');
+            Route::delete('/home_service_services/{id}/destroy', 'destroy');
+            Route::put('/home_service_services/update_status/{id}', 'update_status');
+            Route::put('/home_service_services/update_all_status', 'update_all_status');
+            Route::put('/home_service_services/update_is_completed_status', 'update_is_completed_status');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\BookingTimesController::class)->group(function () {
+            Route::get('/booking_times', 'index')->name('home_service_booking_times.index');
+            Route::post('/booking_times/update', 'update');
+            Route::get('/booking_times/day', 'home_service_day_booking_time');
+            Route::post('/edit/time_settings', 'time_settings')->name('home_service_booking_times.time_settings');
+            Route::get('/add_times/{type}', 'add_times')->name('home_service_booking_times.add_times');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\PromoCodeController::class)->group(function () {
+            Route::get('/home_service_promo_codes', 'index')->name('home_service_promo_codes.index');
+            Route::get('/home_service_promo_codes/indexTable', 'indexTable');
+            Route::post('/home_service_promo_codes', 'store')->name('home_service_promo_codes.store');
+            Route::put('/home_service_promo_codes/{id}/update', 'update');
+            Route::delete('/home_service_promo_codes/{id}/destroy', 'destroy');
+            Route::put('/home_service_promo_codes/update_status/{id}', 'update_status');
+            Route::put('/home_service_promo_codes/update_all_status', 'update_all_status');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\ReservationController::class)->group(function () {
+            Route::get('/reservations', 'index')->name('home_service_reservations.index');
+            Route::get('/reservations/indexTable', 'indexTable');
+            Route::put('/reservations/update_status', 'update_reservation_status');
+            Route::get('/reservations/reservation_details', 'reservation_details');
+            Route::get('/reservations/ticket/{id}', 'ticket_template');
+            Route::get('/reservations/user_chat/{user_id}', 'user_chat');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\ChatController::class)->group(function () {
+            Route::get('/chats', 'index')->name('home_service_chats.index');
+            Route::get('/chats/user_details/{id}', 'user_details');
+            Route::put('/chats/update_message_read/{key}', 'update_message_read');
+            Route::get('/chats/send_message_notification', 'send_message_notification');
+            Route::get('/chats/translation_messages', 'translation_messages');
+            Route::get('/chats/translation_message', 'translate_message');
+        });
+
+        Route::controller(\App\Http\Controllers\HomeService\FinancialAccountsController::class)->group(function () {
+            Route::get('/financial_accounts', 'index')->name('home_service_financial_accounts.index');
+            Route::get('/financial_accounts/update_status', 'update_status')->name('home_service_financial_accounts.update_status');
+            Route::post('/financial_accounts/make_withdraw', 'make_withdraw')->name('home_service_financial_accounts.make_withdraw');
         });
     });
 });

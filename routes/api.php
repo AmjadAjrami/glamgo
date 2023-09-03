@@ -55,6 +55,9 @@ Route::get('offer_details', [\App\Http\Controllers\API\HomeController::class, 'o
 Route::get('artists', [\App\Http\Controllers\API\HomeController::class, 'artists']);
 Route::get('artist_details', [\App\Http\Controllers\API\HomeController::class, 'artist_details']);
 
+Route::get('home_services', [\App\Http\Controllers\API\HomeController::class, 'home_services']);
+Route::get('home_service_details', [\App\Http\Controllers\API\HomeController::class, 'home_service_details']);
+
 Route::get('store', [\App\Http\Controllers\API\HomeController::class, 'store']);
 Route::get('store_search', [\App\Http\Controllers\API\HomeController::class, 'store_search']);
 Route::get('products', [\App\Http\Controllers\API\HomeController::class, 'products']);
